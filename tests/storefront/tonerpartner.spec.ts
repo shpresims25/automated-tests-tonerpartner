@@ -54,7 +54,11 @@ if (shopConfig.features.tonerPartner) {
 
     test('product detail page recommends matching products that open their own detail page', async ({ product, cfg, page }) => {
       await product.open(cfg.testData.simpleProduct);
-      const heading = page.getByRole('heading', { level: 2, name: /^passende Produkte/i });
+      // "Passende Produkte" (HQ-Patronen, Tintencenter); HD-Toner: "Passende Artikel zu …" (staging only)
+      // and "Bestellen Sie jetzt noch Papier und Bürobedarf mit dazu!" (staging + production)
+      const heading = page
+        .getByRole('heading', { level: 2, name: /^(passende (Produkte|Artikel)|Bestellen Sie jetzt noch)/i })
+        .first();
       await heading.scrollIntoViewIfNeeded();
       await expect(heading).toBeVisible();
       const boxes = page.locator(cfg.selectors.listing.productBox).filter({ has: page.locator(cfg.selectors.listing.productName) });

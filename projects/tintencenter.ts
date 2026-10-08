@@ -1,8 +1,18 @@
 import type { ProjectConfig } from "../src/config/types";
+import "dotenv/config";
+
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing environment variable: ${name} (check your .env file)`);
+  }
+  return value;
+}
+
 
 const config: ProjectConfig = {
   name: "Tintencenter",
-  baseURL: "https://staging.tintencenter.com",
+  baseURL: requireEnv("BASE_URL"),
   locale: "de-DE",
   currencySymbol: "€",
 
@@ -21,7 +31,8 @@ const config: ProjectConfig = {
     cookieBanner: false,
     languageSwitch: false,
     currencySwitch: false,
-    mobileNavigation: true,
+    // no burger / off-canvas menu: on mobile the main categories scroll horizontally in the header (verified on production)
+    mobileNavigation: false,
     // Usercentrics consent layer (see selectors.cookie)
     consentLayer: true,
     // "Privatkund*in inkl. MwSt." / "Geschäftskunde exkl. MwSt." switch in the top bar

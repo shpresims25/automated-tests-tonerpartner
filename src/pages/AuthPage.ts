@@ -72,8 +72,15 @@ export class AuthPage extends BasePage {
     // /checkout/register: checkbox; /account/login: hidden input (value=1) → leave it alone
     const createAccount = form.locator(`${r.createAccount}[type="checkbox"]`);
     if (await createAccount.count()) {
-      // checkout variant: checked = create account, unchecked = guest
-      await createAccount.setChecked(!opts.guest, { force: true });
+      // checkout variant: checked = create account, unchecked = guest.
+      // HD-Toner mobile hides the checkbox; its "Registrieren" / "Als Gast bestellen" tabs toggle it.
+      const guestTab = this.page.getByRole("tab", { name: /Gast/i }).locator("visible=true").first();
+      if (!(await createAccount.isVisible()) && (await guestTab.count())) {
+        if (opts.guest) await guestTab.click();
+      } else {
+        await createAccount.setChecked(!opts.guest, { force: true });
+      }
+      await expect(createAccount).toBeChecked({ checked: !opts.guest });
     }
 
     const salutation = form.locator(r.salutation);
@@ -92,6 +99,7 @@ export class AuthPage extends BasePage {
       await pwConfirm.fill(c.password);
 
     await this.revealAddressStep(form);
+    await this.waitForAddressCheckReady();
     await this.selectCountry(
       form.locator(r.country).first(),
       c.address.countryLabel,
@@ -118,6 +126,20 @@ export class AuthPage extends BasePage {
       if (!(await street.isVisible())) await form.locator(this.s.register.submit).first().click();
       await expect(street).toBeVisible({ timeout: 3_000 });
     }).toPass({ timeout: 20_000 });
+  }
+
+  /**
+   * Endereco registers its address check (`ams_*` object) ~1s after `load`. Address fields filled
+   * before that never get checked: the status stays empty and the submit is swallowed.
+   */
+  private async waitForAddressCheckReady(): Promise<void> {
+    const status = this.registerForm.locator(this.s.addressCheck.status).first();
+    if (!(await status.count())) return;
+    await this.page.waitForFunction(() => {
+      const objs = (window as unknown as { EnderecoIntegrator?: { integratedObjects?: Record<string, { active?: boolean }> } })
+        .EnderecoIntegrator?.integratedObjects;
+      return Object.entries(objs ?? {}).some(([k, o]) => k.startsWith("ams_") && o?.active);
+    });
   }
 
   /**

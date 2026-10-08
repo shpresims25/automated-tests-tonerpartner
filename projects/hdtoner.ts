@@ -1,8 +1,17 @@
 import type { ProjectConfig } from "../src/config/types";
+import "dotenv/config";
+
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing environment variable: ${name} (check your .env file)`);
+  }
+  return value;
+}
 
 const config: ProjectConfig = {
   name: "HD-Toner",
-  baseURL: "https://staging.hd-toner.de",
+  baseURL: requireEnv("BASE_URL"),
   locale: "de-DE",
   currencySymbol: "€",
 
@@ -21,7 +30,8 @@ const config: ProjectConfig = {
     cookieBanner: false,
     languageSwitch: false,
     currencySwitch: false,
-    mobileNavigation: true,
+    // no burger / off-canvas menu: on mobile the main categories scroll horizontally in the header (verified on production)
+    mobileNavigation: false,
     consentLayer: true, // Usercentrics (see selectors.cookie)
     vatSwitch: true, // Privatkund*in inkl. MwSt. / Geschäftskunde exkl. MwSt.
     tonerPartner: true, // enables tests/storefront/tonerpartner.spec.ts

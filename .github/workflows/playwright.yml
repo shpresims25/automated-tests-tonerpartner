@@ -5,51 +5,92 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: '0 3 * * *' # nightly full regression
+    - cron: '0 3 * * *' # nightly full regression (03:00 UTC)
   workflow_dispatch:
     inputs:
+      shop:
+        description: 'Shop to test'
+        type: choice
+        options: [all, hdtoner, hqpatronen, tintencenter]
+        default: all
       grep:
-        description: 'Only run tests matching (e.g. @smoke)'
+        description: 'Only run tests matching (e.g. @smoke). Empty = full suite'
         required: false
 
 jobs:
   e2e:
+    name: ${{ matrix.shop }} (shard ${{ matrix.shard }}/2)
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     container:
+      # keep the tag in sync with @playwright/test in package.json
       image: mcr.microsoft.com/playwright:v1.63.0-noble
     strategy:
       fail-fast: false
+      # all three shops share the staging server: limit the load (3 jobs x 2 workers at a time)
+      max-parallel: 3
       matrix:
+        shop: [hdtoner, hqpatronen, tintencenter]
         shard: [1, 2]
+        include:
+          - shop: hdtoner
+            base_url: https://staging.hd-toner.de
+            password_secret: HTTP_PASSWORD_HDTONER
+          - shop: hqpatronen
+            base_url: https://staging.hq-patronen.de
+            password_secret: HTTP_PASSWORD_HQPATRONEN
+          - shop: tintencenter
+            base_url: https://staging.tintencenter.com
+            password_secret: HTTP_PASSWORD_TINTENCENTER
     env:
       CI: 'true'
-      PROJECT: ${{ vars.PROJECT || 'demo' }}
-      BASE_URL: ${{ vars.BASE_URL }}
+      HOME: /root
+      PROJECT: ${{ matrix.shop }}
+      BASE_URL: ${{ matrix.base_url }}
+      EXTRA_BROWSERS: firefox
+      ALLOW_WRITE_TESTS: 'true'
+      CLEANUP_TEST_DATA: 'true'
       HTTP_USERNAME: ${{ secrets.HTTP_USERNAME }}
-      HTTP_PASSWORD: ${{ secrets.HTTP_PASSWORD }}
+      # each job only receives the password of its own shop
+      HTTP_PASSWORD: ${{ secrets[matrix.password_secret] }}
+      # optional (empty secrets are ignored by the suite)
       ADMIN_CLIENT_ID: ${{ secrets.ADMIN_CLIENT_ID }}
       ADMIN_CLIENT_SECRET: ${{ secrets.ADMIN_CLIENT_SECRET }}
       ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-      SW_ACCESS_KEY: ${{ secrets.SW_ACCESS_KEY }}
-      HOME: /root
     steps:
+      - name: Skip shops not selected
+        id: select
+        run: |
+          SHOP="${{ github.event.inputs.shop }}"
+          if [ -z "$SHOP" ] || [ "$SHOP" = "all" ] || [ "$SHOP" = "${{ matrix.shop }}" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/checkout@v4
+        if: steps.select.outputs.run == 'true'
       - uses: actions/setup-node@v4
+        if: steps.select.outputs.run == 'true'
         with:
           node-version: 22
           cache: npm
       - run: npm ci
+        if: steps.select.outputs.run == 'true'
+
       - name: Run tests
+        if: steps.select.outputs.run == 'true'
         run: |
           GREP="${{ github.event.inputs.grep }}"
-          if [ "${{ github.event_name }}" = "pull_request" ]; then GREP="@smoke"; fi
+          # PRs and pushes: smoke only; nightly + manual runs: full suite (or the given grep)
+          case "${{ github.event_name }}" in pull_request|push) GREP="@smoke" ;; esac
           npx playwright test ${GREP:+--grep "$GREP"} --shard=${{ matrix.shard }}/2
+
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && steps.select.outputs.run == 'true'
         with:
-          name: playwright-report-${{ matrix.shard }}
+          name: playwright-report-${{ matrix.shop }}-${{ matrix.shard }}
           path: |
             playwright-report/
             test-results/

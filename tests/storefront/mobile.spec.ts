@@ -12,10 +12,19 @@ test.describe('Mobile / responsive', { tag: '@mobile-only' }, () => {
     await expect(link).toBeVisible();
   });
 
-  test('desktop navigation is hidden, burger toggle visible', async ({ page, cfg }) => {
+  if (shopConfig.features.mobileNavigation) test('desktop navigation is hidden, burger toggle visible', async ({ page, cfg }) => {
     await page.goto(cfg.routes.home);
     await expect(page.locator(cfg.selectors.header.mobileMenuToggle).locator('visible=true').first()).toBeVisible();
     await expect(page.locator(cfg.selectors.navigation.rootLink).locator('visible=true')).toHaveCount(0);
+  });
+
+  // no burger menu (HD-Toner): the main categories stay in a horizontally scrolling header bar
+  if (!shopConfig.features.mobileNavigation) test('main categories stay reachable in the header bar', async ({ page, cfg, navigation }) => {
+    await page.goto(cfg.routes.home, { waitUntil: 'load' });
+    await expect(page.locator(cfg.selectors.header.mobileMenuToggle).locator('visible=true')).toHaveCount(0);
+    const category = cfg.testData.mainCategories[1] ?? cfg.testData.mainCategories[0];
+    await navigation.openCategory(category);
+    await expect(page.locator('body')).toHaveClass(/is-ctl-navigation|is-ctl-landingpage/);
   });
 
   test('page has no horizontal overflow', async ({ page, cfg }) => {
@@ -26,7 +35,7 @@ test.describe('Mobile / responsive', { tag: '@mobile-only' }, () => {
     }
   });
 
-  test('filters open in off-canvas on listing', async ({ listing, cfg }) => {
+  if (shopConfig.testData.expectedFilterTypes.length > 0) test('filters open in off-canvas on listing', async ({ listing, cfg }) => {
     await listing.open(cfg.testData.listingCategoryPath);
     const panel = await listing.ensureFilterPanelVisible();
     await expect(panel).toBeVisible();

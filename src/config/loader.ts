@@ -46,7 +46,8 @@ export function loadConfig(): ResolvedConfig {
   const selectors = deepMerge<Selectors>(shopware67Selectors, project.selectors);
 
   const httpUser = str(process.env.HTTP_USERNAME);
-  const httpPass = str(process.env.HTTP_PASSWORD);
+  // each staging shop has its own basic-auth password: HTTP_PASSWORD_<PROJECT> (e.g. HTTP_PASSWORD_HQPATRONEN) wins
+  const httpPass = str(process.env[`HTTP_PASSWORD_${projectName.toUpperCase()}`]) ?? str(process.env.HTTP_PASSWORD);
 
   cached = {
     ...project,

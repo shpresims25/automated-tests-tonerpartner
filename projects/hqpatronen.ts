@@ -1,8 +1,18 @@
 import type { ProjectConfig } from "../src/config/types";
+import "dotenv/config";
+
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing environment variable: ${name} (check your .env file)`);
+  }
+  return value;
+}
+
 
 const config: ProjectConfig = {
   name: "HQ-Patronen",
-  baseURL: "https://staging.hq-patronen.de",
+  baseURL: requireEnv("BASE_URL"),
   locale: "de-DE",
   currencySymbol: "€",
 
@@ -21,7 +31,8 @@ const config: ProjectConfig = {
     cookieBanner: false,
     languageSwitch: false,
     currencySwitch: false,
-    mobileNavigation: true,
+    // no burger / off-canvas menu: on mobile the main categories scroll horizontally in the header (verified on production)
+    mobileNavigation: false,
     consentLayer: true, // Usercentrics (see selectors.cookie)
     vatSwitch: true, // Privatkund*in inkl. MwSt. / Geschäftskunde exkl. MwSt.
     tonerPartner: true, // enables tests/storefront/tonerpartner.spec.ts
@@ -174,8 +185,9 @@ const config: ProjectConfig = {
       description: '[role="tablist"]',
       tax: 'main p:has-text("inkl. MwSt."):visible',
       quantityInput: 'input.js-quantity-selector[type="number"]',
-      // time dependent ("Versand noch heute" / ...): assert the card, not its wording
-      delivery: ".tp-delivery-countdown-shipping-card",
+      // time dependent ("Versand noch heute" / ...): assert the box, not its wording.
+      // staging desktop: countdown card (d-none below lg); mobile + production: "Bestellen Sie innerhalb von …" block
+      delivery: ".tp-delivery-countdown-shipping-card:visible, .product-detail-delivery-info-calculate:visible",
     },
     cookie: {
       banner: "#usercentrics-cmp-ui",

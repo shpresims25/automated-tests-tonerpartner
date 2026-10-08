@@ -135,6 +135,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   },
 
   page: async ({ page, cfg, autoConsent }, use) => {
+    // staging (APP_ENV=dev) renders the Symfony web debug toolbar fixed at the bottom; on mobile it
+    // covers the buy button. Not part of the shop (production has none), so it is hidden.
+    await page.addInitScript(() => {
+      document.addEventListener("DOMContentLoaded", () => {
+        const style = document.createElement("style");
+        style.textContent = ".sf-toolbar, .sf-minitoolbar { display: none !important; }";
+        document.head.appendChild(style);
+      });
+    });
     if (autoConsent) await autoAcceptConsent(page, cfg);
     await use(page);
   },
