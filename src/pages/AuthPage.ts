@@ -151,7 +151,8 @@ export class AuthPage extends BasePage {
   private async waitForAddressCheck(invalidAddress = false): Promise<void> {
     const status = this.registerForm.locator(this.s.addressCheck.status).first();
     if (invalidAddress || !(await status.count())) return;
-    await expect(status, "address validation did not finish").not.toHaveValue("");
+    // the Endereco API itself can take >10s while the suite runs in parallel
+    await expect(status, "address validation did not finish").not.toHaveValue("", { timeout: 30_000 });
   }
 
   /** Address validation popup (shown on submit when the address is not accepted as entered). */

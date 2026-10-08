@@ -1,18 +1,9 @@
 import type { ProjectConfig } from "../src/config/types";
-import "dotenv/config";
-
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`Missing environment variable: ${name} (check your .env file)`);
-  }
-  return value;
-}
-
+import { requireEnv } from "../src/config/env";
 
 const config: ProjectConfig = {
   name: "Tintencenter",
-  baseURL: requireEnv("BASE_URL"),
+  baseURL: requireEnv("BASE_URL_TINTENCENTER"),
   locale: "de-DE",
   currencySymbol: "€",
 

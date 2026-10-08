@@ -42,7 +42,12 @@ export function loadConfig(): ResolvedConfig {
   const mod = require(projectFile);
   const project: ProjectConfig = mod.default ?? mod.config;
 
-  const baseURL = (str(process.env.BASE_URL) ?? project.baseURL).replace(/\/+$/, '');
+  // BASE_URL_<PROJECT> (e.g. BASE_URL_HQPATRONEN) > BASE_URL > the profile's baseURL
+  const baseURL = (
+    str(process.env[`BASE_URL_${projectName.toUpperCase()}`]) ??
+    str(process.env.BASE_URL) ??
+    project.baseURL
+  ).replace(/\/+$/, '');
   const selectors = deepMerge<Selectors>(shopware67Selectors, project.selectors);
 
   const httpUser = str(process.env.HTTP_USERNAME);
