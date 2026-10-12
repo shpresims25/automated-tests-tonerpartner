@@ -1,4 +1,5 @@
 import { test, expect, shopConfig } from '../../src/fixtures';
+import { parsePrice } from '../../src/utils/price';
 
 /**
  * Functionality of the TonerPartner shops (HD-Toner, HQ-Patronen, Tintencenter) that replaces the
@@ -139,7 +140,7 @@ if (shopConfig.features.tonerPartner) {
           value: (l.nextElementSibling?.textContent ?? '').replace(/\s+/g, ' ').trim(),
         })),
       );
-      const num = (s: string) => parseFloat(s.replace(/[^\d,]/g, '').replace(',', '.'));
+      const num = parsePrice; // "1.299,00 €" (DE) and "CHF 1'299.00" (CH)
       // labels differ per shop ("Zwischensumme" / "Summe Artikel"): the rows are identified by their CSS classes
       const pick = (cls: string) => {
         const r = rows.find((x) => x.cls.split(/\s+/).includes(cls));
@@ -155,7 +156,7 @@ if (shopConfig.features.tonerPartner) {
       expect(net + vat).toBeCloseTo(total, 2);
       // a quantity discount shows the struck-through list price first: the payable amount is the last one
       const lineText = await cart.lineItem(cfg.testData.simpleProduct.name).locator(cfg.selectors.cart.lineItemTotal).first().innerText();
-      const amounts = lineText.match(/\d[\d.]*,\d{2}/g) ?? [];
+      const amounts = lineText.replace(/['’]/g, '').match(/\d[\d.,]*[.,]\d{2}(?!\d)/g) ?? [];
       expect(amounts.length, `no amount in "${lineText}"`).toBeGreaterThan(0);
       expect(num(amounts[amounts.length - 1])).toBeCloseTo(subtotal, 2);
     });

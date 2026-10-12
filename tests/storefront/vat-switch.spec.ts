@@ -20,8 +20,8 @@ if (shopConfig.features.vatSwitch) test.describe('Private / business price switc
     await expect(trigger).toContainText(/exkl\. MwSt/i);
     await expect.poll(() => product.priceValue()).toBeLessThan(gross);
     const net = await product.priceValue();
-    // German VAT 19 %: net = gross / 1.19 (allow rounding of a cent)
-    expect(Math.abs(net - gross / 1.19)).toBeLessThanOrEqual(0.02);
+    // net = gross / (1 + VAT rate), German VAT 19 % unless the profile sets another rate (allow rounding of a cent)
+    expect(Math.abs(net - gross / (1 + (cfg.testData.vatRate ?? 0.19)))).toBeLessThanOrEqual(0.02);
 
     expect((await page.context().cookies()).find((c) => c.name === v.cookie)?.value).toBe('true');
     await page.reload({ waitUntil: 'load' });

@@ -11,7 +11,7 @@ on:
       shop:
         description: 'Shop to test'
         type: choice
-        options: [all, hdtoner, hqpatronen, tintencenter]
+        options: [all, hdtoner, hdtonerch, hqpatronen, tintencenter]
         default: all
       grep:
         description: 'Only run tests matching (e.g. @smoke). Empty = full suite'
@@ -27,13 +27,16 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.63.0-noble
     strategy:
       fail-fast: false
-      # all three shops share the staging server: limit the load (3 jobs x 2 workers at a time)
+      # all shops share the staging server: limit the load (3 jobs x 2 workers at a time)
       max-parallel: 3
       matrix:
-        shop: [hdtoner, hqpatronen, tintencenter]
+        shop: [hdtoner, hdtonerch, hqpatronen, tintencenter]
         shard: [1, 2]
         include:
           - shop: hdtoner
+            password_secret: HTTP_PASSWORD_HDTONER
+          # hd-toner.ch runs the same suite with its own profile (projects/hdtonerch.ts) and uses the HD-Toner staging login
+          - shop: hdtonerch
             password_secret: HTTP_PASSWORD_HDTONER
           - shop: hqpatronen
             password_secret: HTTP_PASSWORD_HQPATRONEN
@@ -43,10 +46,12 @@ jobs:
       CI: 'true'
       HOME: /root
       PROJECT: ${{ matrix.shop }}
-      # repository variables (Settings → Secrets and variables → Actions → Variables)
-      BASE_URL_HDTONER: ${{ vars.BASE_URL_HDTONER }}
-      BASE_URL_HQPATRONEN: ${{ vars.BASE_URL_HQPATRONEN }}
-      BASE_URL_TINTENCENTER: ${{ vars.BASE_URL_TINTENCENTER }}
+      # repository variables (Settings → Secrets and variables → Actions → Variables); a secret of the same name works too
+      BASE_URL_HDTONER: ${{ vars.BASE_URL_HDTONER || secrets.BASE_URL_HDTONER }}
+      # staging only: the loader refuses production hostnames (www.*)
+      BASE_URL_HDTONERCH: ${{ vars.BASE_URL_HDTONERCH || secrets.BASE_URL_HDTONERCH || 'https://staging.hd-toner.ch' }}
+      BASE_URL_HQPATRONEN: ${{ vars.BASE_URL_HQPATRONEN || secrets.BASE_URL_HQPATRONEN }}
+      BASE_URL_TINTENCENTER: ${{ vars.BASE_URL_TINTENCENTER || secrets.BASE_URL_TINTENCENTER }}
       EXTRA_BROWSERS: firefox
       ALLOW_WRITE_TESTS: 'true'
       CLEANUP_TEST_DATA: 'true'
