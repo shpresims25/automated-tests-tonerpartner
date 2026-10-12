@@ -140,6 +140,8 @@ export interface ProjectConfig {
       /** Substring of the printer page URL after selecting the model. */
       modelUrlPart: RegExp;
     };
+    /** VAT rate of the shop's country as a fraction (default 0.19, German VAT): used to check net vs. gross prices. */
+    vatRate?: number;
     /** Page with the newsletter sign-up form (third party iframe on the TonerPartner shops). */
     newsletterPath?: string;
     /** Visible text of the footer link leading to the contact form. */

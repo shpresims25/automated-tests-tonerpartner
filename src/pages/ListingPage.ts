@@ -32,6 +32,7 @@ export class ListingPage extends BasePage {
     const texts = await this.productBoxes.locator(this.s.listing.productPrice).evaluateAll(
       (els, lp) =>
         els.map((el) => {
+          if (el.matches(lp)) return ''; // the price element itself is the struck-through list price (hd-toner.ch)
           const clone = el.cloneNode(true) as HTMLElement;
           clone.querySelectorAll(lp).forEach((n) => n.remove());
           return clone.textContent ?? '';

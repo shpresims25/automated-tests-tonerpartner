@@ -1,9 +1,9 @@
 import type { ProjectConfig } from "../src/config/types";
-import { requireEnv } from "../src/config/env";
 
 const config: ProjectConfig = {
   name: "HD-Toner",
-  baseURL: requireEnv("BASE_URL_HDTONER"),
+  // not required here: projects/hdtonerch.ts extends this profile (the loader fails if the selected shop has no URL)
+  baseURL: process.env.BASE_URL_HDTONER ?? "",
   locale: "de-DE",
   currencySymbol: "€",
 

@@ -3,7 +3,7 @@
  * "29,95 €", "€29.95", "ab 1.299,00 €", "$1,299.00*" → number
  */
 export function parsePrice(text: string): number {
-  const m = text.replace(/\s/g, '').match(/\d[\d.,]*/);
+  const m = text.replace(/[\s'’]/g, '').match(/\d[\d.,]*/);
   if (!m) return NaN;
   let n = m[0];
   const lastComma = n.lastIndexOf(',');
