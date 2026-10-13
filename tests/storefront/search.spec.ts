@@ -7,16 +7,18 @@ test(
     const { searchTerm } = cfg.testData;
     await page.goto(cfg.routes.home);
     await header.search(searchTerm);
-    await expect(page).toHaveURL(
-      new RegExp(`(search|query)=${encodeURIComponent(searchTerm)}`),
-    );
-    await expect(page.locator("main")).toContainText(searchTerm);
-    await expect(
-      page
-        .locator("main")
-        .getByRole("button", { name: "In den Warenkorb" })
-        .first(),
-    ).toBeVisible();
+    // A product number redirects to the product page (live behaviour of FACT-Finder),
+    // any other term lands on the result page.
+    await page.waitForLoadState("domcontentloaded");
+    if (/(search|query)=/.test(page.url())) {
+      await expect(page.locator("main")).toContainText(searchTerm);
+      await expect(
+        page.locator("main").locator(cfg.selectors.listing.buyButton).first(),
+      ).toBeVisible();
+    } else {
+      await expect(page.locator(cfg.selectors.product.productNumber).first()).toContainText(searchTerm);
+      await expect(page.locator(cfg.selectors.product.buyButton).first()).toBeVisible();
+    }
   },
 );
 
