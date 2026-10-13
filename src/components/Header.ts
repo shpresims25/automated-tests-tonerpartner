@@ -35,10 +35,14 @@ export class Header extends BasePage {
     await this.ensureSearchVisible();
     // The consent layer (Usercentrics) can pop up while we type and swallows the Enter; the page
     // fixture's locator handler accepts it on the next action, so retry the whole entry.
+    // An exact product number makes the shop (FACT-Finder) redirect straight to the product page,
+    // so any navigation away from the start page counts, not only the result page.
+    const startUrl = this.page.url();
     await expect(async () => {
+      if (this.page.url() !== startUrl) return;
       await this.searchInput.fill(term);
       await this.searchInput.press("Enter");
-      await this.page.waitForURL(/\/(search|factfinder\/result)\?/, { timeout: 8_000 });
+      await this.page.waitForURL((url) => url.href !== startUrl, { timeout: 8_000 });
     }).toPass({ timeout: 30_000 });
   }
 

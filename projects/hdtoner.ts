@@ -74,7 +74,7 @@ const config: ProjectConfig = {
       name: "TODO",
       optionGroups: ["TODO"],
     },
-    searchTerm: "43924", // the search field takes printer models or product numbers
+    searchTerm: "TN-2410", // toner model number (the search hint suggests it); "Brother" lands on a brand page without products, "43924" redirects to a PDP that 404s on staging
     searchMinResults: 1,
     // staging deliberately throws the Symfony routing exception for unknown URLs (production shows the shop 404 page)
     notFoundPage: "exception",
