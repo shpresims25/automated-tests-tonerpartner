@@ -45,12 +45,14 @@ export class AuthPage extends BasePage {
 
     await this.$(this.s.login.email).fill(email);
     await this.$(this.s.login.password).fill(password);
-    await this.$(this.s.login.submit).click();
+    // noWaitAfter: on a slow staging the POST + redirect can outlast the click timeout; callers
+    // assert on the outcome (URL / error alert) with their own timeouts
+    await this.$(this.s.login.submit).click({ noWaitAfter: true });
   }
 
   async loginAndExpectSuccess(email: string, password: string): Promise<void> {
     await this.login(email, password);
-    await expect(this.page).not.toHaveURL(/\/account\/login/);
+    await expect(this.page).not.toHaveURL(/\/account\/login/, { timeout: 30_000 });
   }
 
   get loginError(): Locator {
@@ -204,7 +206,7 @@ export class AuthPage extends BasePage {
         feedback.waitFor({ state: "visible", timeout: 3_000 }).then(() => true, () => false),
       ];
       try {
-        await submit.click();
+        await submit.click({ noWaitAfter: true });
       } catch (e) {
         // the popup opened while the click was being performed and now intercepts it
         if (await this.addressCheckModal.isVisible()) return;

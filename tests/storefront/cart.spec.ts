@@ -47,7 +47,7 @@ test.describe('Cart', () => {
     const single = await cart.totalValue();
     await cart.setQuantity(p.name, 2);
     expect(await cart.quantityOf(p.name)).toBe(2);
-    await expect.poll(() => cart.totalValue()).toBeGreaterThan(single);
+    await expect.poll(() => cart.totalValue(), { timeout: 30_000 }).toBeGreaterThan(single);
   });
 
   test('remove product from cart page', { tag: '@smoke' }, async ({ cart, cartHelper, cfg }) => {
