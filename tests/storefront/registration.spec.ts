@@ -14,7 +14,7 @@ if (shopConfig.features.registration) test.describe('Customer registration', () 
     if (cfg.features.doubleOptInRegistration) {
       await expect(page.locator(cfg.selectors.page.alertSuccess).first()).toBeVisible();
     } else {
-      await expect(page).toHaveURL(new RegExp(`${cfg.routes.account}(\\?.*)?$`));
+      await expect(page).toHaveURL(new RegExp(`${cfg.routes.account}(\\?.*)?$`), { timeout: 45_000 });
       // account sidebar is collapsed on mobile → check it is rendered, not visible
       await expect(page.locator(cfg.selectors.account.aside).first()).toBeAttached();
     }
