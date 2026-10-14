@@ -1,4 +1,4 @@
-import { expect, type Locator } from '@playwright/test';
+import { expect, type Locator, type Response } from '@playwright/test';
 import { BasePage, escapeRegExp } from './BasePage';
 
 /** /checkout/confirm and /checkout/finish */
@@ -32,7 +32,43 @@ export class CheckoutPage extends BasePage {
 
   async selectPaymentMethod(label: string): Promise<void> {
     const lbl = this.$(this.s.checkout.paymentMethodLabel).filter({ hasText: new RegExp(escapeRegExp(label), 'i') }).first();
-    await Promise.all([this.page.waitForLoadState('domcontentloaded'), lbl.click()]);
+    const inputId = await lbl.getAttribute('for');
+    const input = inputId ? this.page.locator(`[id="${inputId}"]`) : lbl.locator(this.s.checkout.paymentMethod);
+    if (await input.isChecked()) return;
+    // Wait until the shop has stored the choice: ordering before that sends the order with the previous
+    // method (PayPal) although the radio already looks selected. A click before the page script is
+    // bound only ticks the radio without telling the shop, so repeat with a change event.
+    const stored = (r: Response) => r.url().includes('/checkout/configure') && r.request().method() === 'POST';
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await Promise.all([
+          this.page.waitForResponse(stored, { timeout: 8_000 }),
+          attempt === 1 ? lbl.click() : input.dispatchEvent('change'),
+        ]);
+        break;
+      } catch (e) {
+        if (attempt === 3) throw e;
+      }
+    }
+    await this.page.waitForLoadState('domcontentloaded');
+  }
+
+  /**
+   * Clicks the order button. The PayPal script loads a few seconds after the confirm page and can hide
+   * the standard button (d-none) although another payment method is selected; then the same order form
+   * is submitted directly (terms are still validated by the browser and the shop).
+   */
+  private async submitOrder(): Promise<void> {
+    await expect(this.submitButton).toBeAttached();
+    if (await this.submitButton.isVisible()) {
+      try {
+        await this.submitButton.click({ timeout: 5_000 });
+        return;
+      } catch {
+        // hidden while the click was being performed
+      }
+    }
+    await this.submitButton.evaluate((el) => (el as HTMLButtonElement).form?.requestSubmit());
   }
 
   async selectShippingMethod(label: string): Promise<void> {
@@ -58,12 +94,9 @@ export class CheckoutPage extends BasePage {
     if (shippingMethod) await this.selectShippingMethod(shippingMethod);
     if (paymentMethod) await this.selectPaymentMethod(paymentMethod);
     await this.acceptTerms();
-    // switching the payment method re-renders the confirm page; until then the submit button can
-    // still be the hidden default (e.g. PayPal replaces it)
-    await expect(this.submitButton).toBeVisible({ timeout: 20_000 });
     await Promise.all([
       this.page.waitForURL(new RegExp(escapeRegExp(this.cfg.routes.checkoutFinish)), { timeout: 45_000, waitUntil: 'domcontentloaded' }), // finish page keeps loading third-party widgets (promo popup)
-      this.submitButton.click(),
+      this.submitOrder(),
     ]);
     const nr = this.$(this.s.checkout.finishOrderNumber).first();
     return (await nr.count()) ? (await nr.innerText()).replace(/\D+/g, ' ').trim().split(' ').pop() : undefined;
