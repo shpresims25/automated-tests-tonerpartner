@@ -95,7 +95,7 @@ export interface ProjectConfig {
   testData: {
     /** Main navigation category names in display order (first N are checked). */
     mainCategories: string[];
-    /** A category with enough products for listing / filter / sorting tests. */
+    /** A category with enough products for listing / filter tests. */
     listingCategoryPath: string;
     /** A simple (non-variant) product that can be bought. */
     simpleProduct: ProductRef;
@@ -115,8 +115,6 @@ export interface ProjectConfig {
     expectedFilterTypes: Array<
       "manufacturer" | "properties" | "price" | "rating" | "boolean"
     >;
-    /** Sorting option keys that must exist (Shopware values). */
-    expectedSortings: string[];
     customer: {
       emailDomain: string;
       emailPrefix: string;

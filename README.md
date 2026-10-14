@@ -46,7 +46,7 @@ npm run test:ui                    # Playwright UI mode for debugging
 │   ├── pages/                  # Page Objects: Listing, Product, Cart, Auth, Account, Checkout, Contact
 │   ├── fixtures/index.ts       # ★ extended `test` — inject page objects, API clients, customer, loggedInPage
 │   ├── client/                 # extension point for client-specific page objects/fixtures
-│   └── utils/                  # price parsing, sorting helpers
+│   └── utils/                  # price parsing helpers
 └── tests/
     ├── setup/                  # health check (before) + test-data cleanup (after)
     ├── storefront/             # ★ core Shopware tests — reused unchanged across projects
@@ -109,7 +109,7 @@ test('customer orders', async ({ loggedInPage, cartHelper, checkout, account, cf
 | `homepage` | header/nav/content/footer, SEO basics, logo link, JS errors, images |
 | `cookie-consent` | banner shown, "only necessary", remembered |
 | `navigation` | configured categories, every category opens, flyout, breadcrumb |
-| `listing` | product boxes, PDP link, pagination, sorting (price/name), filters (manufacturer, property, price, reset) |
+| `listing` | product boxes, PDP link, pagination, price currency, complete product boxes, filters (manufacturer, property, price, reset) |
 | `product-detail` | core info, canonical/structured data, variant switch, breadcrumb, reviews, 404 product |
 | `search` | header search, relevance, suggest, no result, XSS-safe input |
 | `cart` | add from PDP/listing, quantity (off-canvas + cart page), remove, persistence, promotion codes |

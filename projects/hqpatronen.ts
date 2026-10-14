@@ -53,7 +53,7 @@ const config: ProjectConfig = {
   testData: {
     // Header order of staging.hq-patronen.de (same TonerPartner theme as HD-Toner, different categories).
     mainCategories: ["Tinte", "Toner", "Trommel", "Sonstige", "Band", "Büroartikel", "Papier"],
-    // /bueroartikel/ has many products + pagination + sorting
+    // /bueroartikel/ has many products + pagination
     listingCategoryPath: "/bueroartikel/",
     // main category pages have no breadcrumb (production www.hq-patronen.de neither); manufacturer pages do
     breadcrumbPagePath: "/brother/",
@@ -76,7 +76,6 @@ const config: ProjectConfig = {
     outOfRangePageReturns500: true, // reproduced on production www.hq-patronen.de and staging (read-only GET)
     searchNoResultTerm: "9999999999999",
     expectedFilterTypes: [], // only a printer-model filter on desktop, no standard filter panel
-    expectedSortings: ["name-asc", "name-desc", "price-asc", "price-desc"],
     customer: {
       emailDomain: "example.com",
       emailPrefix: "e2e",

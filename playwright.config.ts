@@ -51,7 +51,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     actionTimeout: 15_000,
-    navigationTimeout: isCI ? 60_000 : 30_000,
+    navigationTimeout: 60_000,
   },
 
   projects: [

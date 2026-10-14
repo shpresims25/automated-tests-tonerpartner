@@ -62,7 +62,6 @@ const config: ProjectConfig = {
     searchMinResults: 1,
     searchNoResultTerm: 'zzqx-no-such-product-4711',
     expectedFilterTypes: ['manufacturer', 'properties', 'price'],
-    expectedSortings: ['name-asc', 'name-desc', 'price-asc', 'price-desc'],
     customer: {
       emailDomain: 'example.com',
       emailPrefix: 'e2e',

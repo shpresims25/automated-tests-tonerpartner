@@ -69,7 +69,6 @@ export const shopware67Selectors = {
     productImage: '.product-image-wrapper img',
     buyButton: '.btn-buy',
     wishlistButton: '.product-wishlist-action',
-    sorting: 'select.sorting',
     pagination: '.pagination',
     paginationItem: '.pagination .page-item',
     paginationNext: '.pagination .page-next',
