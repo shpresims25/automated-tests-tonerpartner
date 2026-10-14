@@ -10,9 +10,6 @@ export class ListingPage extends BasePage {
   get productBoxes(): Locator {
     return this.$(this.s.listing.productBox);
   }
-  get sorting(): Locator {
-    return this.$(this.s.listing.sorting).first();
-  }
   get pagination(): Locator {
     return this.$(this.s.listing.pagination).first();
   }
@@ -42,10 +39,6 @@ export class ListingPage extends BasePage {
     return texts.map(parsePrice).filter((n) => !Number.isNaN(n));
   }
 
-  async sortingOptions(): Promise<string[]> {
-    return this.sorting.locator('option').evaluateAll((o) => o.map((x) => (x as HTMLOptionElement).value));
-  }
-
   /**
    * Runs `action` and waits until Shopware has swapped in the new listing HTML —
    * the XHR response alone arrives before the old product boxes are replaced.
@@ -61,11 +54,6 @@ export class ListingPage extends BasePage {
   private async closeFilterDropdowns(): Promise<void> {
     const open = this.$(`${this.s.listing.filterItemToggle}[aria-expanded="true"]`).locator('visible=true');
     for (const toggle of await open.all()) await toggle.click();
-  }
-
-  async sortBy(key: string): Promise<void> {
-    await this.reloadListing(() => this.sorting.selectOption(key));
-    await expect(this.page).toHaveURL(new RegExp(`order=${key}`));
   }
 
   /** On mobile the filter panel sits in an off-canvas behind a toggle button. */

@@ -58,6 +58,9 @@ export class CheckoutPage extends BasePage {
     if (shippingMethod) await this.selectShippingMethod(shippingMethod);
     if (paymentMethod) await this.selectPaymentMethod(paymentMethod);
     await this.acceptTerms();
+    // switching the payment method re-renders the confirm page; until then the submit button can
+    // still be the hidden default (e.g. PayPal replaces it)
+    await expect(this.submitButton).toBeVisible({ timeout: 20_000 });
     await Promise.all([
       this.page.waitForURL(new RegExp(escapeRegExp(this.cfg.routes.checkoutFinish)), { timeout: 45_000, waitUntil: 'domcontentloaded' }), // finish page keeps loading third-party widgets (promo popup)
       this.submitButton.click(),

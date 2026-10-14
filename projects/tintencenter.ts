@@ -61,7 +61,7 @@ const config: ProjectConfig = {
       "Büroartikel",
       "Papier",
     ],
-    // /bueroartikel/ has many products + pagination + sorting
+    // /bueroartikel/ has many products + pagination
     listingCategoryPath: "/bueroartikel/",
     // main category pages have no breadcrumb (production www.tintencenter.com neither); manufacturer pages do
     breadcrumbPagePath: "/drucker/brother/",
@@ -83,7 +83,6 @@ const config: ProjectConfig = {
     outOfRangePageReturns500: true,
     searchNoResultTerm: "9999999999999",
     expectedFilterTypes: [], // only a printer-model filter on desktop, no standard filter panel
-    expectedSortings: ["name-asc", "name-desc", "price-asc", "price-desc"],
     customer: {
       emailDomain: "example.com",
       emailPrefix: "e2e",

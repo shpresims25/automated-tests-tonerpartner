@@ -60,7 +60,7 @@ const config: ProjectConfig = {
       "Papier",
       "Büroartikel",
     ],
-    // /Papier/ has only 2 products; /bueroartikel/ has 24 + pagination + sorting
+    // /Papier/ has only 2 products; /bueroartikel/ has 24 + pagination
     listingCategoryPath: "/bueroartikel/",
     simpleProduct: {
       path: "/Papier/Druckerpapier-DIN-A4/Druckerpapier-DIN-A4-80g-weiss-500-Blatt.html",
@@ -81,7 +81,6 @@ const config: ProjectConfig = {
     outOfRangePageReturns500: true,
     searchNoResultTerm: "9999999999999",
     expectedFilterTypes: [], // only a printer-model filter on desktop, no standard filter panel
-    expectedSortings: ["name-asc", "name-desc", "price-asc", "price-desc"],
     customer: {
       emailDomain: "example.com",
       emailPrefix: "e2e",

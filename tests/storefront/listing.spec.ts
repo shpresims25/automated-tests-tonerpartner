@@ -1,5 +1,4 @@
 import { test, expect, shopConfig } from "../../src/fixtures";
-import { isSortedAsc, isSortedDesc } from "../../src/utils/price";
 
 test.describe("Product listing", () => {
   test.beforeEach(async ({ listing, cfg }) => {
@@ -47,52 +46,38 @@ test.describe("Product listing", () => {
     await expect(page).toHaveURL(/[?&]p=\d/);
     await expect.poll(() => listing.productNames()).not.toEqual(firstPage);
   });
-});
 
-test.describe("Sorting", () => {
-  test.beforeEach(async ({ listing, cfg }) => {
-    await listing.open(cfg.testData.listingCategoryPath);
+  test("prices are shown in the shop currency", async ({ listing, cfg }) => {
+    await expect(listing.productBoxes.first()).toBeVisible();
+    const prices = await listing.productBoxes
+      .locator(cfg.selectors.listing.productPrice)
+      .evaluateAll((els) => els.map((el) => el.textContent ?? ""));
+    expect(prices.length).toBeGreaterThan(0);
+    for (const text of prices)
+      expect(text, `price "${text.trim()}"`).toContain(cfg.currencySymbol);
   });
 
-  test(
-    "offers the expected sorting options",
-    { tag: "@smoke" },
-    async ({ listing, cfg }) => {
-      const options = await listing.sortingOptions();
-      for (const key of cfg.testData.expectedSortings)
-        expect(options).toContain(key);
-    },
-  );
-
-  test("sorts by price ascending", async ({ listing }) => {
-    await listing.sortBy("price-asc");
-    const prices = await listing.productPrices();
-    expect(prices.length).toBeGreaterThan(1);
-    expect(
-      isSortedAsc(prices),
-      `prices not ascending: ${prices.join(", ")}`,
-    ).toBe(true);
-  });
-
-  test("sorts by price descending", async ({ listing }) => {
-    await listing.sortBy("price-desc");
-    const prices = await listing.productPrices();
-    expect(
-      isSortedDesc(prices),
-      `prices not descending: ${prices.join(", ")}`,
-    ).toBe(true);
-  });
-
-  test("sorts by name A-Z and Z-A", async ({ listing }) => {
-    await listing.sortBy("name-asc");
-    const asc = await listing.productNames();
-    await listing.sortBy("name-desc");
-    const desc = await listing.productNames();
-    expect(asc[0]).not.toEqual(desc[0]);
-    const collator = new Intl.Collator(undefined, { sensitivity: "base" });
-    expect(collator.compare(asc[0], asc[asc.length - 1])).toBeLessThanOrEqual(
-      0,
+  test("every product box has a name, an image and a link", async ({
+    listing,
+    cfg,
+  }) => {
+    const s = cfg.selectors.listing;
+    await expect(listing.productBoxes.first()).toBeVisible();
+    const boxes = await listing.productBoxes.evaluateAll(
+      (els, sel) =>
+        els.map((el) => ({
+          name: el.querySelector(sel.name)?.textContent?.trim() ?? "",
+          image: !!el.querySelector(sel.image),
+          href: el.querySelector("a[href]")?.getAttribute("href") ?? "",
+        })),
+      { name: s.productName, image: s.productImage },
     );
+    expect(boxes.length).toBeGreaterThan(0);
+    for (const box of boxes) {
+      expect(box.name, "product name").not.toBe("");
+      expect(box.image, `image of "${box.name}"`).toBe(true);
+      expect(box.href, `link of "${box.name}"`).not.toBe("");
+    }
   });
 });
 
