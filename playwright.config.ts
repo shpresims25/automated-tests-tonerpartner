@@ -33,7 +33,8 @@ export default defineConfig({
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
   workers: isCI ? 2 : undefined,
-  timeout: 60_000,
+  // CI runners reach the staging shops slowly (registration POST / page load can take 30s+)
+  timeout: isCI ? 120_000 : 60_000,
   expect: { timeout: 10_000 },
 
   reporter: isCI
@@ -50,7 +51,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     actionTimeout: 15_000,
-    navigationTimeout: 30_000,
+    navigationTimeout: isCI ? 60_000 : 30_000,
   },
 
   projects: [

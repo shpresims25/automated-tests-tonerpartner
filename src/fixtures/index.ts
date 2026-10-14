@@ -194,7 +194,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       const auth = new AuthPage(p, cfg);
       await auth.open();
       await auth.register(customer);
-      await expect(p).not.toHaveURL(/\/account\/login/);
+      await expect(p).not.toHaveURL(/\/account\/login/, { timeout: 45_000 });
       await ctx.close();
     }
     if (cfg.features.doubleOptInRegistration) {
