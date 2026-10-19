@@ -67,9 +67,11 @@ export class CartPage extends BasePage {
   }
 
   async proceedToCheckout(): Promise<void> {
+    // noWaitAfter: the click would otherwise wait for the (slow) checkout page itself and time out;
+    // reaching the checkout URL is the success criterion
     await Promise.all([
-      this.page.waitForURL(/\/checkout\/(confirm|register)/),
-      this.checkoutButton.click(),
+      this.page.waitForURL(/\/checkout\/(confirm|register)/, { timeout: 45_000, waitUntil: 'domcontentloaded' }),
+      this.checkoutButton.click({ noWaitAfter: true }),
     ]);
   }
 }
