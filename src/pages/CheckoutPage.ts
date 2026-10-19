@@ -62,12 +62,19 @@ export class CheckoutPage extends BasePage {
     await expect(this.submitButton).toBeAttached();
     if (await this.submitButton.isVisible()) {
       try {
-        await this.submitButton.click({ timeout: 5_000 });
+        // noWaitAfter: the click starts the order and the browser navigates to the finish page, which
+        // the caller waits for. Without it the click itself waits for that navigation and can time out
+        // although the order was placed.
+        await this.submitButton.click({ timeout: 10_000, noWaitAfter: true });
         return;
-      } catch {
-        // hidden while the click was being performed
+      } catch (e) {
+        // The click can only fail before it happens (button hidden / detached). If the page already
+        // moved on, the order was placed: never submit a second time.
+        if (this.page.url().includes(this.cfg.routes.checkoutFinish)) return;
+        if (await this.submitButton.isVisible().catch(() => false)) throw e;
       }
     }
+    if (this.page.url().includes(this.cfg.routes.checkoutFinish)) return;
     await this.submitButton.evaluate((el) => (el as HTMLButtonElement).form?.requestSubmit());
   }
 

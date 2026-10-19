@@ -85,8 +85,8 @@ const config: ProjectConfig = {
       emailDomain: "example.com",
       emailPrefix: "e2e",
       password: "Shopware-E2E-2026!",
-      firstName: "Erika",
-      lastName: "Tester",
+      firstName: "E2E-Test",
+      lastName: "Solution25",
       salutationIndex: 1,
       // Endereco validates addresses on registration/checkout. This one is accepted unchanged
       // (a street like "Oststraße 1" would be rewritten to "Oststr. 1" by the plugin).
