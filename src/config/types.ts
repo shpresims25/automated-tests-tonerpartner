@@ -142,6 +142,8 @@ export interface ProjectConfig {
     vatRate?: number;
     /** Page with the newsletter sign-up form (third party iframe on the TonerPartner shops). */
     newsletterPath?: string;
+    /** VAT ID to enter when the profile form requires one even for private customers (HQ-Patronen CH). */
+    profileVatId?: string;
     /** Visible text of the footer link leading to the contact form. */
     contactLinkText: RegExp;
     /** Payment/shipping method labels to select in checkout; null = keep default. */
