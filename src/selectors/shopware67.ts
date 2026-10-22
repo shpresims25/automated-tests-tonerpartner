@@ -216,6 +216,7 @@ export const shopware67Selectors = {
     profileEditToggle: '#change-data',
     profileFirstName: '#profilePersonalForm [name="firstName"]',
     profileLastName: '#profilePersonalForm [name="lastName"]',
+    profileVatId: '#profilePersonalForm [name="vatIds[]"]',
     profileSubmit: '#profilePersonalForm button[type="submit"]',
     addressCard: '.address-card, .address-box',
     addAddressButton: 'a[href*="/account/address/create"]',

@@ -22,7 +22,8 @@ if (shopConfig.features.tonerPartner) {
       }
     });
 
-    test('newsletter page embeds the sign-up form and rejects an invalid e-mail address', async ({ page, cfg }) => {
+    // only shops with a newsletter page (the Swiss HQ-Patronen shop has none)
+    if (shopConfig.testData.newsletterPath) test('newsletter page embeds the sign-up form and rejects an invalid e-mail address', async ({ page, cfg }) => {
       await page.goto(cfg.testData.newsletterPath!, { waitUntil: 'load' });
       const form = page.frameLocator('main iframe[src*="salesmanago"]');
       const email = form.locator('input[type="email"]');

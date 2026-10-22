@@ -1,3 +1,4 @@
+import { requireEnv } from '@src/config/env';
 import type { ProjectConfig } from '../src/config/types';
 
 /**
@@ -9,7 +10,7 @@ import type { ProjectConfig } from '../src/config/types';
  */
 const config: ProjectConfig = {
   name: 'Shopware Demo (automated-testing)',
-  baseURL: 'https://automated-testing.development-s25.com',
+  baseURL: requireEnv('BASE_URL_DEMOSHOP'),
   locale: 'de-DE',
   currencySymbol: '€',
 
@@ -68,8 +69,8 @@ const config: ProjectConfig = {
       emailDomain: 'example.com',
       emailPrefix: 'e2e',
       password: 'Shopware-E2E-2026!',
-      firstName: 'Erika',
-      lastName: 'Tester',
+      firstName: 'E2E-Test',
+      lastName: 'Solution25',
       salutationIndex: 1,
       address: {
         street: 'Teststraße 1',

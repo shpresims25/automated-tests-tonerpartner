@@ -22,6 +22,8 @@ export class AccountPage extends BasePage {
   async updateName(firstName: string, lastName: string): Promise<void> {
     await this.$(this.s.account.profileFirstName).fill(firstName);
     await this.$(this.s.account.profileLastName).fill(lastName);
+    const { profileVatId } = this.cfg.testData;
+    if (profileVatId) await this.$(this.s.account.profileVatId).fill(profileVatId);
     await Promise.all([
       this.page.waitForLoadState('domcontentloaded'),
       this.$(this.s.account.profileSubmit).first().click(),
