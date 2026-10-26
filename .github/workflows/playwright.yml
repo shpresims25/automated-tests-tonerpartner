@@ -9,7 +9,7 @@ on:
       shop:
         description: 'Shop to test'
         type: choice
-        options: [all, hdtoner, hdtonerch, hqpatronen, hqpatronench, tintencenter]
+        options: [all, hdtoner, hdtonerch, hqpatronen, hqpatronench, hqpatronen24_ch, tintencenter]
         default: all
       grep:
         description: 'Only run tests matching (e.g. @smoke). Empty = full suite'
@@ -28,7 +28,7 @@ jobs:
       # all shops share the staging server: limit the load (3 jobs x 2 workers at a time)
       max-parallel: 3
       matrix:
-        shop: [hdtoner, hdtonerch, hqpatronen, hqpatronench, tintencenter]
+        shop: [hdtoner, hdtonerch, hqpatronen, hqpatronench, hqpatronen24_ch, tintencenter]
         shard: [1, 2]
         include:
           - shop: hdtoner
@@ -41,6 +41,8 @@ jobs:
           # staging.hq-patronen.ch uses the HQ-Patronen staging login
           - shop: hqpatronench
             password_secret: HTTP_PASSWORD_HQPATRONEN
+          - shop: hqpatronen24_ch
+            password_secret: HTTP_PASSWORD_HQPATRONEN24_CH
           - shop: tintencenter
             password_secret: HTTP_PASSWORD_TINTENCENTER
     env:
@@ -53,6 +55,7 @@ jobs:
       BASE_URL_HDTONERCH: ${{ vars.BASE_URL_HDTONERCH || secrets.BASE_URL_HDTONERCH || 'https://staging.hd-toner.ch' }}
       BASE_URL_HQPATRONEN: ${{ vars.BASE_URL_HQPATRONEN || secrets.BASE_URL_HQPATRONEN }}
       BASE_URL_HQPATRONENCH: ${{ vars.BASE_URL_HQPATRONENCH || secrets.BASE_URL_HQPATRONENCH || 'https://staging.hq-patronen.ch' }}
+      BASE_URL_HQPATRONEN24_CH: ${{ vars.BASE_URL_HQPATRONEN24_CH || secrets.BASE_URL_HQPATRONEN24_CH || 'https://staging.hq-patronen24.ch' }}
       BASE_URL_TINTENCENTER: ${{ vars.BASE_URL_TINTENCENTER || secrets.BASE_URL_TINTENCENTER }}
       EXTRA_BROWSERS: firefox
       ALLOW_WRITE_TESTS: 'true'
