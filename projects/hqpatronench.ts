@@ -1,5 +1,4 @@
 import type { ProjectConfig } from "../src/config/types";
-import { requireEnv } from "../src/config/env";
 import hqPatronen from "./hqpatronen";
 
 /**
@@ -9,7 +8,8 @@ import hqPatronen from "./hqpatronen";
 const config: ProjectConfig = {
   ...hqPatronen,
   name: "HQ-Patronen CH",
-  baseURL: requireEnv("BASE_URL_HQPATRONENCH"),
+  // not required here: projects/hqpatronen24_ch.ts extends this profile (the loader fails if the selected shop has no URL)
+  baseURL: process.env.BASE_URL_HQPATRONENCH ?? "",
   locale: "de-CH",
   currencySymbol: "CHF",
 

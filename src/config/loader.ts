@@ -52,7 +52,7 @@ export function loadConfig(): ResolvedConfig {
     throw new Error(`Missing base URL for project "${projectName}": set BASE_URL_${projectName.toUpperCase()} (or BASE_URL)`);
   }
   // the suites create customers and place orders: never point them at a live TonerPartner storefront
-  if (/^(www\.)?(hd-toner|hq-patronen|tintencenter)\.[a-z]+$/i.test(new URL(baseURL).hostname)) {
+  if (/^(www\.)?(hd-toner|hq-patronen24?|tintencenter)\.[a-z]+$/i.test(new URL(baseURL).hostname)) {
     throw new Error(`Refusing to run against the production storefront ${baseURL}: use the staging.* URL`);
   }
   const selectors = deepMerge<Selectors>(shopware67Selectors, project.selectors);
