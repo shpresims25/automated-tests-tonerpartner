@@ -47,7 +47,8 @@ if (shopConfig.features.registration) test.describe('Customer registration', () 
     await expect(page.locator(`${cfg.selectors.page.alertDanger}, ${cfg.selectors.page.invalidFeedback}`).locator('visible=true').first()).toBeVisible();
   });
 
-  test('invalid address opens the address check popup and blocks registration', async ({ page, cfg, auth, adminApi, requireWriteAccess }) => {
+  // registered only for shops with an address check (Endereco); Druckerpatronen.de has none
+  if (shopConfig.testData.customer.invalidAddress) test('invalid address opens the address check popup and blocks registration', async ({ page, cfg, auth, adminApi, requireWriteAccess }) => {
     void requireWriteAccess;
     const invalidAddress = cfg.testData.customer.invalidAddress;
     expect(invalidAddress, 'invalidAddress must be configured for shops with address validation').toBeTruthy();

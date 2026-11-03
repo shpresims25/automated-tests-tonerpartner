@@ -11,7 +11,7 @@ test.describe('Homepage', () => {
     ).toBeVisible();
     await expect(header.cartButton).toBeVisible();
     await expect(page.locator(cfg.selectors.footer.root).first()).toBeVisible();
-    await expect(page.locator('.cms-page, .cms-section').first()).toBeVisible();
+    await expect(page.locator(cfg.selectors.page.cmsContent).first()).toBeVisible();
   });
 
   test('has basic SEO meta data', { tag: '@smoke' }, async ({ page, cfg }) => {

@@ -18,6 +18,8 @@ export const shopware67Selectors = {
     invalidField: '.is-invalid',
     invalidFeedback: '.invalid-feedback',
     loader: '.loader, .element-loader-backdrop',
+    /** First rendered CMS block of the start page (an empty first .cms-section must not count). */
+    cmsContent: '.cms-page, .cms-section',
   },
   cookie: {
     banner: '.cookie-permission-container',
@@ -129,6 +131,8 @@ export const shopware67Selectors = {
     checkoutButton: '.begin-checkout-btn',
     cartLink: 'a[href$="/checkout/cart"]',
     close: '.offcanvas-close',
+    /** request that answers a quantity change / removal in the off-canvas cart */
+    updateRequest: '/checkout/offcanvas',
     empty: '.offcanvas-cart .alert-info, .offcanvas-cart .cart-empty',
   },
   cart: {
@@ -198,6 +202,8 @@ export const shopware67Selectors = {
     manufacturerOption: '.manufacturer-options li[role="option"]',
     seriesOption: '.series-options li[role="option"]',
     modelOption: '.model-options li[role="option"]',
+    /** Button that reveals the finder when it is collapsed on load (Druckerpatronen.de: "Druckermodell wählen"). */
+    opener: '',
   },
   /** TonerPartner private/business customer switch (prices incl. / excl. VAT). Optional (`features.vatSwitch`). */
   vatSwitch: {

@@ -33,7 +33,12 @@ export class ProductPage extends BasePage {
   }
 
   async setQuantity(qty: number): Promise<void> {
-    await this.quantity.fill(String(qty));
+    // themes with a quantity dropdown (Druckerpatronen.de) instead of a number input
+    if ((await this.quantity.evaluate((el) => el.tagName)) === "SELECT") {
+      await this.quantity.selectOption(String(qty));
+    } else {
+      await this.quantity.fill(String(qty));
+    }
   }
 
   async addToCart(qty?: number): Promise<void> {

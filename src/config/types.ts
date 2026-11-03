@@ -31,6 +31,8 @@ export interface FeatureFlags {
   vatSwitch?: boolean;
   /** TonerPartner shop family (HD-Toner, HQ-Patronen, Tintencenter): enables tests/storefront/tonerpartner.spec.ts. */
   tonerPartner?: boolean;
+  /** Druckerpatronen.de: private/business price toggle (checkbox) instead of the TonerPartner dropdown. */
+  vatToggle?: boolean;
   /** Hovering a main category opens a mega-menu flyout with sub categories. */
   megaMenuFlyout?: boolean;
 }
@@ -97,6 +99,8 @@ export interface ProjectConfig {
     mainCategories: string[];
     /** A category with enough products for listing / filter tests. */
     listingCategoryPath: string;
+    /** Listing whose boxes can be bought directly (default: listingCategoryPath); for shops where the main listing cannot. */
+    buyableListingPath?: string;
     /** A simple (non-variant) product that can be bought. */
     simpleProduct: ProductRef;
     /** A product with variants (configurator). */
@@ -138,6 +142,8 @@ export interface ProjectConfig {
       /** Substring of the printer page URL after selecting the model. */
       modelUrlPart: RegExp;
     };
+    /** Product detail tabs in display order (default: Produktdetails, Beschreibung, Produktsicherheit). */
+    productTabs?: string[];
     /** VAT rate of the shop's country as a fraction (default 0.19, German VAT): used to check net vs. gross prices. */
     vatRate?: number;
     /** Page with the newsletter sign-up form (third party iframe on the TonerPartner shops). */

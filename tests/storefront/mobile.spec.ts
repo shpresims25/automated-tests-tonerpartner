@@ -18,8 +18,8 @@ test.describe('Mobile / responsive', { tag: '@mobile-only' }, () => {
     await expect(page.locator(cfg.selectors.navigation.rootLink).locator('visible=true')).toHaveCount(0);
   });
 
-  // no burger menu (HD-Toner): the main categories stay in a horizontally scrolling header bar
-  if (!shopConfig.features.mobileNavigation) test('main categories stay reachable in the header bar', async ({ page, cfg, navigation }) => {
+  // no burger menu (HD-Toner): the main categories stay in a horizontally scrolling header bar (shops without main categories have none)
+  if (!shopConfig.features.mobileNavigation && shopConfig.testData.mainCategories.length > 0) test('main categories stay reachable in the header bar', async ({ page, cfg, navigation }) => {
     await page.goto(cfg.routes.home, { waitUntil: 'load' });
     await expect(page.locator(cfg.selectors.header.mobileMenuToggle).locator('visible=true')).toHaveCount(0);
     const category = cfg.testData.mainCategories[1] ?? cfg.testData.mainCategories[0];
