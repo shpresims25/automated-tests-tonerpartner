@@ -17,6 +17,14 @@ export class PrinterFinder extends BasePage {
     return this.$(this.s.printerFinder.modelInput);
   }
 
+  /** Some shops keep the finder collapsed until a button ("Druckermodell wählen") is clicked. */
+  private async revealIfCollapsed(): Promise<void> {
+    const opener = this.s.printerFinder.opener;
+    if (!opener || (await this.manufacturer.isVisible())) return;
+    await this.$(opener).locator('visible=true').first().click();
+    await expect(this.manufacturer).toBeVisible();
+  }
+
   /**
    * The finder script does not always start on a page load (observed on staging.tintencenter.com
    * and, more often, on production: the inputs then stay inert, `aria-expanded` is never set).
@@ -27,6 +35,7 @@ export class PrinterFinder extends BasePage {
     await this.dismissConsent();
     for (let attempt = 1; ; attempt++) {
       try {
+        await this.revealIfCollapsed();
         await expect(this.manufacturer, 'printer finder did not initialise after page load').toHaveAttribute(
           'aria-expanded',
           /true|false/,

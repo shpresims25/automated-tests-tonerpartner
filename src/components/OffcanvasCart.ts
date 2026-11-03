@@ -25,15 +25,22 @@ export class OffcanvasCart extends BasePage {
     await expect(this.root).not.toHaveClass(/showing/);
     const selector = this.lineItem(name).locator('[data-quantity-selector]').first();
     await expect(selector).toBeVisible();
-    await selector.evaluate((el) =>
-      new Promise<void>((resolve) => {
-        const check = () =>
-          (window as any).PluginManager?.getPluginInstanceFromElement(el, 'QuantitySelector')
-            ? resolve()
-            : requestAnimationFrame(check);
-        check();
-      }),
-    );
+    // Themes with their own quantity dropdown (Druckerpatronen.de) never bind the plugin: after 5s go on
+    await selector
+      .evaluate(
+        (el) =>
+          new Promise<void>((resolve) => {
+            const check = () =>
+              (window as any).PluginManager?.getPluginInstanceFromElement(el, 'QuantitySelector')
+                ? resolve()
+                : requestAnimationFrame(check);
+            check();
+            setTimeout(resolve, 5_000);
+          }),
+        undefined,
+        { timeout: 15_000 },
+      )
+      .catch(() => undefined);
   }
 
   async increaseQuantity(name: string): Promise<void> {
@@ -43,15 +50,15 @@ export class OffcanvasCart extends BasePage {
     const select = item.locator(this.s.offcanvasCart.quantitySelect);
     if (await select.isVisible()) {
       const next = Number(await select.inputValue()) + 1;
-      await this.waitForXhr('/checkout/offcanvas', () => select.selectOption(String(next)));
+      await this.waitForXhr(this.s.offcanvasCart.updateRequest, () => select.selectOption(String(next)));
       return;
     }
-    await this.waitForXhr('/checkout/offcanvas', () => item.locator(this.s.offcanvasCart.plus).click());
+    await this.waitForXhr(this.s.offcanvasCart.updateRequest, () => item.locator(this.s.offcanvasCart.plus).click());
   }
 
   async remove(name: string): Promise<void> {
     await this.waitUntilReady(name);
-    await this.waitForXhr('/checkout/offcanvas', () => this.lineItem(name).locator(this.s.offcanvasCart.remove).click());
+    await this.waitForXhr(this.s.offcanvasCart.updateRequest, () => this.lineItem(name).locator(this.s.offcanvasCart.remove).click());
   }
 
   async goToCart(): Promise<void> {

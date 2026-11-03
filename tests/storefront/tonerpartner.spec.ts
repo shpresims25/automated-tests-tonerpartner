@@ -43,7 +43,7 @@ if (shopConfig.features.tonerPartner) {
     test('product detail tabs switch between details, description and product safety', async ({ product, cfg, page }) => {
       await product.open(cfg.testData.simpleProduct);
       const tabs = page.getByRole('tab');
-      for (const name of ['Produktdetails', 'Beschreibung', 'Produktsicherheit']) {
+      for (const name of cfg.testData.productTabs ?? ['Produktdetails', 'Beschreibung', 'Produktsicherheit']) {
         const tab = tabs.filter({ hasText: name }).first();
         await expect(tab, `tab "${name}"`).toBeVisible();
         await tab.click();

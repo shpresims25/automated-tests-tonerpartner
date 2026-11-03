@@ -16,7 +16,7 @@ test.describe('Cart', () => {
   });
 
   test('add product from listing', async ({ listing, offcanvasCart, cfg }) => {
-    await listing.open(cfg.testData.listingCategoryPath);
+    await listing.open(cfg.testData.buyableListingPath ?? cfg.testData.listingCategoryPath);
     const idx = await listing.firstBuyableIndex();
     expect(idx, 'the listing offers no directly buyable product').toBeGreaterThanOrEqual(0);
     const name = await listing.addToCartFromListing(idx);
