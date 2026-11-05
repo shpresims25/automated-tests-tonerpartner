@@ -51,6 +51,7 @@ const config: ProjectConfig = {
   },
 
   testData: {
+    layoutPageChecks: 7,
     // Header order of staging.hq-patronen.de (same TonerPartner theme as HD-Toner, different categories).
     mainCategories: ["Tinte", "Toner", "Trommel", "Sonstige", "Band", "Büroartikel", "Papier"],
     // /bueroartikel/ has many products + pagination

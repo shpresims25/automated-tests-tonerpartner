@@ -9,7 +9,7 @@ on:
       shop:
         description: 'Shop to test'
         type: choice
-        options: [all, hdtoner, hdtonerch, hqpatronen, hqpatronench, hqpatronen24_ch, tintencenter]
+        options: [all, hdtoner, hdtonerch, hqpatronen, hqpatronench, hqpatronen24_ch, tintencenter, druckerpatronen, hdtonerat]
         default: all
       grep:
         description: 'Only run tests matching (e.g. @smoke). Empty = full suite'
@@ -28,7 +28,7 @@ jobs:
       # all shops share the staging server: limit the load (3 jobs x 2 workers at a time)
       max-parallel: 3
       matrix:
-        shop: [hdtoner, hdtonerch, hqpatronen, hqpatronench, hqpatronen24_ch, tintencenter]
+        shop: [hdtoner, hdtonerch, hqpatronen, hqpatronench, hqpatronen24_ch, tintencenter, druckerpatronen, hdtonerat]
         shard: [1, 2]
         include:
           - shop: hdtoner
@@ -45,6 +45,11 @@ jobs:
             password_secret: HTTP_PASSWORD_HQPATRONEN24_CH
           - shop: tintencenter
             password_secret: HTTP_PASSWORD_TINTENCENTER
+          - shop: druckerpatronen
+            password_secret: HTTP_PASSWORD_DRUCKERPATRONEN
+          # staging.hd-toner.at uses the HD-Toner staging login
+          - shop: hdtonerat
+            password_secret: HTTP_PASSWORD_HDTONER
     env:
       CI: 'true'
       HOME: /root
@@ -57,6 +62,8 @@ jobs:
       BASE_URL_HQPATRONENCH: ${{ vars.BASE_URL_HQPATRONENCH || secrets.BASE_URL_HQPATRONENCH || 'https://staging.hq-patronen.ch' }}
       BASE_URL_HQPATRONEN24_CH: ${{ vars.BASE_URL_HQPATRONEN24_CH || secrets.BASE_URL_HQPATRONEN24_CH || 'https://staging.hq-patronen24.ch' }}
       BASE_URL_TINTENCENTER: ${{ vars.BASE_URL_TINTENCENTER || secrets.BASE_URL_TINTENCENTER }}
+      BASE_URL_DRUCKERPATRONEN: ${{ vars.BASE_URL_DRUCKERPATRONEN || secrets.BASE_URL_DRUCKERPATRONEN || 'https://update.druckerpatronen.de' }}
+      BASE_URL_HDTONERAT: ${{ vars.BASE_URL_HDTONERAT || secrets.BASE_URL_HDTONERAT || 'https://staging.hd-toner.at' }}
       EXTRA_BROWSERS: firefox
       ALLOW_WRITE_TESTS: 'true'
       CLEANUP_TEST_DATA: 'true'
@@ -68,6 +75,23 @@ jobs:
       ADMIN_CLIENT_SECRET: ${{ secrets.ADMIN_CLIENT_SECRET }}
       ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      # per-shop integration (wins over the generic ones above)
+      HDTONER_ADMIN_CLIENT_ID: ${{ secrets.HDTONER_ADMIN_CLIENT_ID }}
+      HDTONER_ADMIN_CLIENT_SECRET: ${{ secrets.HDTONER_ADMIN_CLIENT_SECRET }}
+      HDTONERCH_ADMIN_CLIENT_ID: ${{ secrets.HDTONERCH_ADMIN_CLIENT_ID }}
+      HDTONERCH_ADMIN_CLIENT_SECRET: ${{ secrets.HDTONERCH_ADMIN_CLIENT_SECRET }}
+      HDTONERAT_ADMIN_CLIENT_ID: ${{ secrets.HDTONERAT_ADMIN_CLIENT_ID }}
+      HDTONERAT_ADMIN_CLIENT_SECRET: ${{ secrets.HDTONERAT_ADMIN_CLIENT_SECRET }}
+      HQPATRONEN_ADMIN_CLIENT_ID: ${{ secrets.HQPATRONEN_ADMIN_CLIENT_ID }}
+      HQPATRONEN_ADMIN_CLIENT_SECRET: ${{ secrets.HQPATRONEN_ADMIN_CLIENT_SECRET }}
+      HQPATRONENCH_ADMIN_CLIENT_ID: ${{ secrets.HQPATRONENCH_ADMIN_CLIENT_ID }}
+      HQPATRONENCH_ADMIN_CLIENT_SECRET: ${{ secrets.HQPATRONENCH_ADMIN_CLIENT_SECRET }}
+      HQPATRONEN24_CH_ADMIN_CLIENT_ID: ${{ secrets.HQPATRONEN24_CH_ADMIN_CLIENT_ID }}
+      HQPATRONEN24_CH_ADMIN_CLIENT_SECRET: ${{ secrets.HQPATRONEN24_CH_ADMIN_CLIENT_SECRET }}
+      TINTENCENTER_ADMIN_CLIENT_ID: ${{ secrets.TINTENCENTER_ADMIN_CLIENT_ID }}
+      TINTENCENTER_ADMIN_CLIENT_SECRET: ${{ secrets.TINTENCENTER_ADMIN_CLIENT_SECRET }}
+      DRUCKERPATRONEN_ADMIN_CLIENT_ID: ${{ secrets.DRUCKERPATRONEN_ADMIN_CLIENT_ID }}
+      DRUCKERPATRONEN_ADMIN_CLIENT_SECRET: ${{ secrets.DRUCKERPATRONEN_ADMIN_CLIENT_SECRET }}
     steps:
       - name: Skip shops not selected
         id: select

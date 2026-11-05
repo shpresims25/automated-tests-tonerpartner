@@ -15,6 +15,7 @@ const config: ProjectConfig = {
 
   testData: {
     ...hqPatronen.testData,
+    layoutPageChecks: 8,
     vatRate: 0.081, // Swiss VAT
     // the profile form requires a VAT ID here even for private customers (the .de form does not); the shop saves the
     // profile with any value and drops it again for a private customer

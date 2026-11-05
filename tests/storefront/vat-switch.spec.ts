@@ -6,7 +6,8 @@ if (shopConfig.features.vatSwitch) test.describe('Private / business price switc
     const v = cfg.selectors.vatSwitch;
     await product.open(cfg.testData.simpleProduct);
     const trigger = page.locator(v.trigger).locator('visible=true').first();
-    await expect(trigger).toContainText(/inkl\. MwSt/i);
+    // the dropdown is rendered by a script that loads late on slow staging
+    await expect(trigger).toContainText(/inkl\. MwSt/i, { timeout: 30_000 });
     const gross = await product.priceValue();
 
     // the choice is persisted by the shop via POST, then the prices are re-rendered in place

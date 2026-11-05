@@ -51,6 +51,7 @@ const config: ProjectConfig = {
   },
 
   testData: {
+    layoutPageChecks: 6,
     // Header order. "Farbbänder" is left out on purpose: its link (/navigation/<id>)
     // redirects to /Farbband-Schriftband/, which returns 404 on production.
     mainCategories: [
@@ -158,6 +159,8 @@ const config: ProjectConfig = {
       submit: "form.login-form .tp-login-btn-submit",
     },
     offcanvasCart: {
+      // quantity change / removal post straight to /checkout/line-item/change-quantity|delete/<id> (verified on staging)
+      updateRequest: "/checkout/line-item/",
       // the hidden .js-quantity-selector inputs are plugin stubs; the real control is the <select>
       quantityInput: 'select[name="quantity"]',
     },

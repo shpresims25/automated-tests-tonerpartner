@@ -5,7 +5,7 @@ import { test, expect } from '../../src/fixtures';
  * shop is down, behind unexpected auth, or in maintenance mode.
  */
 test('storefront is reachable', async ({ request, cfg }) => {
-  const res = await request.get('/');
+  const res = await request.get('/', { timeout: 60_000 }); // staging has response-time spikes of 15 s+
   expect(res.status(), `GET ${cfg.baseURL}/ returned ${res.status()} — shop down, maintenance mode or basic auth missing?`).toBe(200);
   expect(await res.text()).toContain('is-ctl-');
 });

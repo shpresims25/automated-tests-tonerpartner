@@ -132,7 +132,7 @@ export const shopware67Selectors = {
     cartLink: 'a[href$="/checkout/cart"]',
     close: '.offcanvas-close',
     /** request that answers a quantity change / removal in the off-canvas cart */
-    updateRequest: '/checkout/offcanvas',
+    updateRequest: '/checkout/line-item/',
     empty: '.offcanvas-cart .alert-info, .offcanvas-cart .cart-empty',
   },
   cart: {
