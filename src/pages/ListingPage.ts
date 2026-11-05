@@ -122,7 +122,13 @@ export class ListingPage extends BasePage {
     const box = this.productBoxes.nth(index);
     const name = (await box.locator(this.s.listing.productName).innerText()).trim();
     // the caller asserts the off-canvas cart (state) instead of a specific XHR, which HD-Toner's cart popup does not always issue
-    await box.locator(this.s.listing.buyButton).first().click();
+    // the add-to-cart script binds late after load (slow staging): a click before that is lost, so it is repeated until the popup opens
+    const cart = this.$(this.s.offcanvasCart.root).first();
+    await expect(async () => {
+      if (await cart.isVisible()) return;
+      await box.locator(this.s.listing.buyButton).first().click({ timeout: 5_000 });
+      await expect(cart).toBeVisible({ timeout: 6_000 });
+    }).toPass({ timeout: 40_000 });
     return name;
   }
 

@@ -104,7 +104,12 @@ export class AdminApiClient {
         limit: 100,
       });
       if (batch.length === 0) return deleted;
-      for (const c of batch) await this.delete('customer', c.id);
+      // one bulk request per batch (deleting hundreds of leftovers one by one exceeds the test timeout)
+      const res = await this.ctx.post('/api/_action/sync', {
+        headers: await this.authHeader(),
+        data: [{ key: 'cleanup', action: 'delete', entity: 'customer', payload: batch.map((c) => ({ id: c.id })) }],
+      });
+      if (!res.ok()) throw new Error(`Admin bulk delete customer failed: ${res.status()} ${await res.text()}`);
       deleted += batch.length;
     }
   }

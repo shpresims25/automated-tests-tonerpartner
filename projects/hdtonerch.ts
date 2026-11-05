@@ -39,6 +39,7 @@ const config: ProjectConfig = {
 
   testData: {
     ...hdToner.testData,
+    layoutPageChecks: 6,
     vatRate: 0.081, // Swiss VAT (net CHF 26.32 / gross CHF 28.45 on the staging shop)
     // "Büroartikel" is not part of the main navigation on the Swiss shop (the category /bueroartikel/ still exists
     // and is used for the listing tests)

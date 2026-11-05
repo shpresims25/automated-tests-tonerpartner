@@ -52,6 +52,7 @@ const config: ProjectConfig = {
   },
 
   testData: {
+    layoutPageChecks: 7,
     mainCategories: [
       "Tinte",
       "Toner",

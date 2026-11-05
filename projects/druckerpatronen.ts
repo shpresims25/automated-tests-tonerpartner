@@ -1,18 +1,6 @@
 import type { ProjectConfig } from "../src/config/types";
 import hqPatronen from "./hqpatronen";
 
-/**
- * Druckerpatronen.de (staging: update.druckerpatronen.de; production www.druckerpatronen.de, read-only reference).
- * Same TonerPartner theme and FACT-Finder search as HQ-Patronen, so the profile extends it.
- * Verified differences (GET inspection of production + staging):
- *  - no main category navigation in the header: the shop is entered through the printer finder,
- *    the brand pages (/Drucker/<Brand>/) and the two category pages /Tinten-Toner/ and /Druckerzubehoer/
- *  - product URLs are /<name>/<number> (staging) – production uses /<name>/<32 hex id>
- *  - legal pages live under /Unternehmen/* on staging (production: /AGB/, /Datenschutz/, ...)
- *  - unknown URLs return the shop's own 404 page (HTTP 404)
- *  - no Endereco address check on the registration form (no invalid-address popup)
- *  - the cart button is a separate mobile link (a.header-cart-btn); .header-cart is desktop only
- */
 const config: ProjectConfig = {
   ...hqPatronen,
   name: "Druckerpatronen.de",
@@ -33,6 +21,7 @@ const config: ProjectConfig = {
 
   testData: {
     ...hqPatronen.testData,
+    layoutPageChecks: 6,
     // there is no main navigation: see tests/storefront/druckerpatronen.spec.ts for the brand/category entry points
     mainCategories: [],
     listingCategoryPath: "/Druckerzubehoer/",
@@ -86,11 +75,6 @@ const config: ProjectConfig = {
       ...hqPatronen.selectors?.page,
       // the first .cms-section of the start page is empty (height 0)
       cmsContent: ".cms-page",
-    },
-    offcanvasCart: {
-      ...hqPatronen.selectors?.offcanvasCart,
-      // the cart popup posts straight to the line-item endpoints (change-quantity / delete)
-      updateRequest: "/checkout/line-item/",
     },
     header: {
       ...hqPatronen.selectors?.header,

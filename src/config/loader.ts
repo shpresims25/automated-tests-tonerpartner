@@ -61,17 +61,22 @@ export function loadConfig(): ResolvedConfig {
   // each staging shop has its own basic-auth password: HTTP_PASSWORD_<PROJECT> (e.g. HTTP_PASSWORD_HQPATRONEN) wins
   const httpPass = str(process.env[`HTTP_PASSWORD_${projectName.toUpperCase()}`]) ?? str(process.env.HTTP_PASSWORD);
 
+  // per-shop admin credentials: <PROJECT>_ADMIN_CLIENT_ID (e.g. HDTONERAT_ADMIN_CLIENT_ID) wins over ADMIN_CLIENT_ID
+  const adminVar = (name: string) => str(process.env[`${projectName.toUpperCase()}_${name}`]) ?? str(process.env[name]);
+
   cached = {
     ...project,
+    // Kameleoon (A/B testing) must not interfere with any shop: every storefront URL the tests open carries this parameter
+    urlParams: { kameleoonDisabled: "true", ...project.urlParams },
     baseURL,
     selectors,
     env: {
       httpCredentials: httpUser && httpPass ? { username: httpUser, password: httpPass } : undefined,
       admin: {
-        clientId: str(process.env.ADMIN_CLIENT_ID),
-        clientSecret: str(process.env.ADMIN_CLIENT_SECRET),
-        username: str(process.env.ADMIN_USERNAME),
-        password: str(process.env.ADMIN_PASSWORD),
+        clientId: adminVar('ADMIN_CLIENT_ID'),
+        clientSecret: adminVar('ADMIN_CLIENT_SECRET'),
+        username: adminVar('ADMIN_USERNAME'),
+        password: adminVar('ADMIN_PASSWORD'),
       },
       accessKey: str(process.env.SW_ACCESS_KEY),
       allowWriteTests: bool(process.env.ALLOW_WRITE_TESTS, true),

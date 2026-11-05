@@ -31,11 +31,12 @@ export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
   forbidOnly: isCI,
-  retries: isCI ? 2 : 0,
-  workers: isCI ? 2 : undefined,
+  // the shared staging servers are slow under parallel load: few workers, one retry locally
+  retries: isCI ? 2 : 1,
+  workers: 2,
   // CI runners reach the staging shops slowly (registration POST / page load can take 30s+)
-  timeout: isCI ? 120_000 : 60_000,
-  expect: { timeout: 10_000 },
+  timeout: isCI ? 120_000 : 90_000,
+  expect: { timeout: 20_000 },
 
   reporter: isCI
     ? [['list'], ['html', { open: 'never' }], ['junit', { outputFile: 'test-results/junit.xml' }]]

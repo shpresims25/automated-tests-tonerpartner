@@ -39,7 +39,7 @@ export class PrinterFinder extends BasePage {
         await expect(this.manufacturer, 'printer finder did not initialise after page load').toHaveAttribute(
           'aria-expanded',
           /true|false/,
-          { timeout: 8_000 },
+          { timeout: 20_000 }, // staging answers slowly (6-8 s spikes): the script starts after the page's own scripts
         );
         return;
       } catch (e) {

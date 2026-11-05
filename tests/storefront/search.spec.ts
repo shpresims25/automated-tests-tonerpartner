@@ -14,7 +14,8 @@ test(
       await expect(page.locator("main")).toContainText(searchTerm);
       await expect(
         page.locator("main").locator(cfg.selectors.listing.buyButton).first(),
-      ).toBeVisible();
+        // FACT-Finder renders the boxes client-side after the result count: slow on staging
+      ).toBeVisible({ timeout: 45_000 });
     } else {
       await expect(page.locator(cfg.selectors.product.productNumber).first()).toContainText(searchTerm);
       await expect(page.locator(cfg.selectors.product.buyButton).first()).toBeVisible();

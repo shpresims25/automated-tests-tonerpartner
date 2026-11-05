@@ -43,10 +43,14 @@ export class ProductPage extends BasePage {
 
   async addToCart(qty?: number): Promise<void> {
     if (qty) await this.setQuantity(qty);
-    await this.buyButton.click();
     // off-canvas cart (HD-Toner: "tp-cart-popup") with the checkout button
     const cart = this.$(this.s.offcanvasCart.root);
-    await expect(cart).toBeVisible();
+    // the add-to-cart script binds late after load (slow staging): a click before that is lost, so it is repeated
+    await expect(async () => {
+      if (await cart.isVisible()) return;
+      await this.buyButton.click({ timeout: 5_000 });
+      await expect(cart).toBeVisible({ timeout: 6_000 });
+    }).toPass({ timeout: 40_000 });
     await expect(cart.locator(this.s.offcanvasCart.checkoutButton).first()).toBeVisible();
   }
 

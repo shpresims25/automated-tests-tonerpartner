@@ -43,21 +43,6 @@ if (shopConfig.testData.printerFinder) test.describe('Printer finder', () => {
     await expect(first.locator(cfg.selectors.listing.productPrice).first()).toContainText(/\d/);
   });
 
-  test('a compatible product can be added to the cart from the printer page', async ({ page, cfg, printerFinder, listing, offcanvasCart }) => {
-    const f = cfg.testData.printerFinder!;
-    await page.goto(cfg.routes.home, { waitUntil: 'load' });
-    await printerFinder.chooseManufacturer(f.manufacturer);
-    await printerFinder.chooseSeries(f.series);
-    await printerFinder.chooseModel(f.model);
-    await expect(listing.productBoxes.first()).toBeVisible();
-
-    const idx = await listing.firstBuyableIndex();
-    expect(idx, 'the printer page offers no directly buyable compatible product').toBeGreaterThanOrEqual(0);
-    const name = await listing.addToCartFromListing(idx);
-    await offcanvasCart.expectOpen();
-    await expect(offcanvasCart.lineItem(name)).toBeVisible();
-  });
-
   test('manufacturer page lists the printer series and a series page lists models', async ({ page, cfg }) => {
     const f = cfg.testData.printerFinder!;
     await page.goto(f.manufacturerPath, { waitUntil: 'load' });

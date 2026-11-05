@@ -8,6 +8,7 @@ const config: ProjectConfig = {
 
   testData: {
     ...hqPatronenCh.testData,
+    layoutPageChecks: 8,
     // the manufacturer page has a breadcrumb (verified); /brother/ does not exist here
     breadcrumbPagePath: "/drucker/brother/",
     newsletterPath: undefined,

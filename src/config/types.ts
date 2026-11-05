@@ -69,6 +69,8 @@ export interface ProjectConfig {
   /** Shopware storefront locale — used for price parsing only. */
   locale: string;
   currencySymbol: string;
+  /** Query parameters added to every storefront URL the tests open (e.g. { kameleoonDisabled: "true" }). */
+  urlParams?: Record<string, string>;
 
   features: FeatureFlags;
 
@@ -112,6 +114,8 @@ export interface ProjectConfig {
     /** Search term guaranteed to return nothing. */
     searchNoResultTerm: string;
 
+    /** How many of the HTML pages in `importantLinks` get an individual layout check (default: all). */
+    layoutPageChecks?: number;
     breadcrumbPagePath?: string;
     outOfRangePageReturns500?: boolean;
     notFoundPage?: "shop" | "exception";

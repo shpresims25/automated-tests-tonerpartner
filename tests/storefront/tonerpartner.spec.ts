@@ -153,7 +153,11 @@ if (shopConfig.features.tonerPartner) {
       const total = pick('checkout-aside-summary-total');
       const net = pick('summary-net');
       const vat = pick('summary-tax');
-      expect(subtotal + shipping).toBeCloseTo(total, 2);
+      // minimum order surcharge ("Mindestmengenzuschlag") below the free-shipping threshold is an extra row
+      const surcharge = rows
+        .filter((r) => /mindestmenge|zuschlag|aufschlag|surcharge/i.test(r.label))
+        .reduce((sum, r) => sum + num(r.value), 0);
+      expect(subtotal + shipping + surcharge).toBeCloseTo(total, 2);
       expect(net + vat).toBeCloseTo(total, 2);
       // a quantity discount shows the struck-through list price first: the payable amount is the last one
       const lineText = await cart.lineItem(cfg.testData.simpleProduct.name).locator(cfg.selectors.cart.lineItemTotal).first().innerText();

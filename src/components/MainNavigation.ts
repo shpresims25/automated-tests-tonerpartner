@@ -23,7 +23,8 @@ export class MainNavigation extends BasePage {
     const link = this.rootLink(name);
     const href = (await link.getAttribute('href')) ?? '';
     // a nav href without trailing slash (Tintencenter "/toner") is redirected to its canonical "/toner/"
-    const norm = (p: string) => p.replace(/\/+$/, '');
+    // (HD-Toner: the nav links to "/toner/", the shop redirects to "/Toner/": compare case-insensitively)
+    const norm = (p: string) => p.replace(/\/+$/, '').toLowerCase();
     const target = norm(new URL(href, this.cfg.baseURL).pathname);
     const flyout = this.$(this.s.navigation.flyout).locator('visible=true').first();
     // either the link navigates, or it opens a flyout (dropdown toggle) with the "show category" link;
