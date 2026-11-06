@@ -18,7 +18,7 @@ if (shopConfig.features.registration) test.describe('Customer registration', () 
       // account sidebar is collapsed on mobile → check it is rendered, not visible
       await expect(page.locator(cfg.selectors.account.aside).first()).toBeAttached();
     }
-    if (adminApi && cfg.env.cleanupTestData) await adminApi.deleteCustomerByEmail(customer.email);
+    if (adminApi && cfg.env.cleanupTestData) await adminApi.deleteCustomerByEmail(customer.email).catch(() => undefined); // like the customer fixture: a failing cleanup must not fail the registration test (the cleanup teardown reports it)
   });
 
   test('empty form shows validation errors', { tag: '@smoke' }, async ({ page, cfg, auth }) => {
@@ -65,7 +65,7 @@ if (shopConfig.features.registration) test.describe('Customer registration', () 
     await expect(auth.registerForm.locator(cfg.selectors.register.street)).not.toHaveValue(invalidAddress!.street);
     await auth.submitRegistration();
     await auth.expectPath(cfg.routes.account);
-    if (adminApi && cfg.env.cleanupTestData) await adminApi.deleteCustomerByEmail(customer.email);
+    if (adminApi && cfg.env.cleanupTestData) await adminApi.deleteCustomerByEmail(customer.email).catch(() => undefined); // like the customer fixture: a failing cleanup must not fail the registration test (the cleanup teardown reports it)
   });
 
   test('valid address is accepted without the address check popup', async ({ page, cfg, auth, adminApi, requireWriteAccess }) => {
@@ -74,6 +74,6 @@ if (shopConfig.features.registration) test.describe('Customer registration', () 
     await auth.register(customer);
     await auth.expectPath(cfg.routes.account);
     await expect(auth.addressCheckModal).toHaveCount(0);
-    if (adminApi && cfg.env.cleanupTestData) await adminApi.deleteCustomerByEmail(customer.email);
+    if (adminApi && cfg.env.cleanupTestData) await adminApi.deleteCustomerByEmail(customer.email).catch(() => undefined); // like the customer fixture: a failing cleanup must not fail the registration test (the cleanup teardown reports it)
   });
 });

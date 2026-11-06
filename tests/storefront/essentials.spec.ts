@@ -66,9 +66,13 @@ test.describe('Essentials', () => {
     await expect(page.locator('main img:visible').first()).toBeVisible();
   });
 
-  test('product page title contains the product name', async ({ product, page, cfg }) => {
+  // The <title> comes from per-product SEO meta data maintained in the CMS (and is
+  // sometimes left untranslated on staging), so assert the rendered heading instead.
+  test('product page heading shows the product name', async ({ product, page, cfg }) => {
     await product.open(cfg.testData.simpleProduct);
-    await expect(page).toHaveTitle(new RegExp(cfg.testData.simpleProduct.name.slice(0, 12).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
+    await expect(page).toHaveTitle(/\S/);
+    const name = cfg.testData.simpleProduct.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    await expect(product.name).toContainText(new RegExp(name, 'i'));
   });
 
   test('product page starts with quantity 1', async ({ product, cfg }) => {

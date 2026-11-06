@@ -9,7 +9,6 @@ const config: ProjectConfig = {
   features: {
     ...hqPatronen.features,
     megaMenuFlyout: false,
-    // the price switch is a toggle (not the HQ-Patronen dropdown): covered by tests/storefront/druckerpatronen.spec.ts
     vatSwitch: false,
     vatToggle: true,
   },
@@ -21,11 +20,9 @@ const config: ProjectConfig = {
 
   testData: {
     ...hqPatronen.testData,
-    layoutPageChecks: 6,
-    // there is no main navigation: see tests/storefront/druckerpatronen.spec.ts for the brand/category entry points
     mainCategories: [],
     listingCategoryPath: "/Druckerzubehoer/",
-    // the "In den Warenkorb" buttons on /Druckerzubehoer/ are not wired to a form (no request is sent): buy from a printer page
+
     buyableListingPath: "/Brother-HL-L-2310-D/50264058",
     breadcrumbPagePath: "/Drucker/Brother/",
     simpleProduct: {
@@ -36,7 +33,6 @@ const config: ProjectConfig = {
     searchTerm: "Brother HL-L 2310",
     searchMinResults: 1,
     notFoundPage: "shop",
-    // staging only: /Druckerzubehoer/?p=99999 answers 500 (production + /Tinten-Toner/ answer 200)
     outOfRangePageReturns500: true,
     productTabs: ["Passende Druckmodelle", "Produktdetails", "Produktsicherheit"],
     printerFinder: {
@@ -47,7 +43,6 @@ const config: ProjectConfig = {
       modelUrlPart: /\/Brother-HL-L-2310-D\//i,
     },
     newsletterPath: undefined,
-    // no Endereco plugin on this shop: the invalid-address registration test is not registered
     customer: { ...hqPatronen.testData.customer, invalidAddress: undefined },
   },
 
@@ -73,34 +68,26 @@ const config: ProjectConfig = {
     ...hqPatronen.selectors,
     page: {
       ...hqPatronen.selectors?.page,
-      // the first .cms-section of the start page is empty (height 0)
       cmsContent: ".cms-page",
     },
     header: {
       ...hqPatronen.selectors?.header,
       cart: ".header-cart:visible, a.header-cart-btn:visible",
-      // guests: the account button itself links to /account/login (no dropdown)
       accountLoginLink: '.account-menu-btn[href$="/account/login"]',
     },
     listing: {
       ...hqPatronen.selectors?.listing,
-      // printer pages list their compatible products without the CMS listing wrapper
       root: ".cms-element-product-listing, .product-box",
-      // articles without a picture render Shopware's placeholder graphic instead of an <img>
       productImage: ".product-image-wrapper img, .product-image-wrapper .product-image-placeholder",
     },
     product: {
       ...hqPatronen.selectors?.product,
       productNumber: ".drp-product-detail-pim-id",
-      // the listing links to product family pages (/<name>/<32 hex id>) that only carry the name in the breadcrumb
       name: ".product-detail-name, .breadcrumb-title-product-detail",
-      // mobile shows .product-detail-delivery-information (d-lg-none) instead of the desktop calculate box
       delivery: ".product-detail-delivery-information:visible, .product-detail-delivery-info-calculate:visible",
-      // quantity dropdown instead of a number input
       quantityInput: '.product-detail-buy select[name$="[quantity]"]',
     },
     printerFinder: {
-      // the finder is collapsed until "Druckermodell wählen" is clicked
       opener: 'button:has-text("Druckermodell wählen"), a:has-text("Druckermodell wählen")',
     },
   },

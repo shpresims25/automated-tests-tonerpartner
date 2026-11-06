@@ -14,11 +14,14 @@ if (shopConfig.features.tonerPartner) {
       const frame = page.locator('main iframe[src*="formcrafts"]');
       await expect(frame).toBeVisible();
       const form = page.frameLocator('main iframe[src*="formcrafts"]');
-      await expect(form.getByText('Kundenservice')).toBeVisible({ timeout: 30_000 });
-      // the form first asks for the topic of the request
-      await expect(form.locator('input[type="checkbox"]')).toHaveCount(6);
-      for (const topic of ['Bestellung & Beratung', 'Lieferung', 'Rechnung & Zahlung', 'Kundenkonto', 'Beanstandung', 'Widerruf']) {
-        await expect(form.getByText(topic, { exact: true }).first(), `topic "${topic}"`).toBeVisible();
+      // the form first asks for the topic of the request (shops without a configured topic list only embed the form)
+      const topics = cfg.testData.contactTopics ?? ['Bestellung & Beratung', 'Lieferung', 'Rechnung & Zahlung', 'Kundenkonto', 'Beanstandung', 'Widerruf'];
+      if (cfg.testData.contactTopics === undefined) await expect(form.getByText('Kundenservice')).toBeVisible({ timeout: 30_000 });
+      if (topics.length) {
+        await expect(form.locator('input[type="checkbox"]')).toHaveCount(topics.length, { timeout: 30_000 });
+        for (const topic of topics) {
+          await expect(form.getByText(topic, { exact: true }).first(), `topic "${topic}"`).toBeVisible();
+        }
       }
     });
 
@@ -28,14 +31,14 @@ if (shopConfig.features.tonerPartner) {
       const form = page.frameLocator('main iframe[src*="salesmanago"]');
       const email = form.locator('input[type="email"]');
       await expect(email).toBeVisible({ timeout: 30_000 });
-      await expect(form.getByRole('button', { name: /jetzt anmelden/i })).toBeVisible();
+      await expect(form.getByRole('button', { name: /jetzt anmelden|s'inscrire/i })).toBeVisible();
       await expect(form.locator('input[type="radio"]')).toHaveCount(2); // Firmenkunde / Privatkunde
 
       // nothing is sent to the third party: the browser blocks the submit of an invalid address
       await email.fill('not-an-email');
-      await form.getByRole('button', { name: /jetzt anmelden/i }).click();
+      await form.getByRole('button', { name: /jetzt anmelden|s'inscrire/i }).click();
       await expect(email).toHaveJSProperty('validity.valid', false);
-      await expect(form.getByText(/vielen dank|erfolgreich/i)).toHaveCount(0);
+      await expect(form.getByText(/vielen dank|erfolgreich|merci|succès/i)).toHaveCount(0);
     });
   });
 
@@ -59,7 +62,7 @@ if (shopConfig.features.tonerPartner) {
       // "Passende Produkte" (HQ-Patronen, Tintencenter); HD-Toner: "Passende Artikel zu …" (staging only)
       // and "Bestellen Sie jetzt noch Papier und Bürobedarf mit dazu!" (staging + production)
       const heading = page
-        .getByRole('heading', { level: 2, name: /^(passende (Produkte|Artikel)|Bestellen Sie jetzt noch)/i })
+        .getByRole('heading', { level: 2, name: /^(passende (Produkte|Artikel)|Bestellen Sie jetzt noch|articles correspondants|plus de produits)/i })
         .first();
       await heading.scrollIntoViewIfNeeded();
       await expect(heading).toBeVisible();

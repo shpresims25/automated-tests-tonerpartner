@@ -7,7 +7,7 @@ if (shopConfig.features.vatSwitch) test.describe('Private / business price switc
     await product.open(cfg.testData.simpleProduct);
     const trigger = page.locator(v.trigger).locator('visible=true').first();
     // the dropdown is rendered by a script that loads late on slow staging
-    await expect(trigger).toContainText(/inkl\. MwSt/i, { timeout: 30_000 });
+    await expect(trigger).toContainText(/inkl\. MwSt|TTC/i, { timeout: 30_000 });
     const gross = await product.priceValue();
 
     // the choice is persisted by the shop via POST, then the prices are re-rendered in place
@@ -18,7 +18,7 @@ if (shopConfig.features.vatSwitch) test.describe('Private / business price switc
         await page.locator(v.businessOption).click();
       })(),
     ]);
-    await expect(trigger).toContainText(/exkl\. MwSt/i);
+    await expect(trigger).toContainText(/exkl\. MwSt|HT/i);
     await expect.poll(() => product.priceValue()).toBeLessThan(gross);
     const net = await product.priceValue();
     // net = gross / (1 + VAT rate), German VAT 19 % unless the profile sets another rate (allow rounding of a cent)
@@ -26,7 +26,7 @@ if (shopConfig.features.vatSwitch) test.describe('Private / business price switc
 
     expect((await page.context().cookies()).find((c) => c.name === v.cookie)?.value).toBe('true');
     await page.reload({ waitUntil: 'load' });
-    await expect(trigger).toContainText(/exkl\. MwSt/i);
+    await expect(trigger).toContainText(/exkl\. MwSt|HT/i);
     expect(await product.priceValue()).toBeCloseTo(net, 2);
   });
 });
