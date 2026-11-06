@@ -101,6 +101,8 @@ export interface ProjectConfig {
     mainCategories: string[];
     /** A category with enough products for listing / filter tests. */
     listingCategoryPath: string;
+    /** False when the listing has a single page (the pagination test is skipped). Default: true. */
+    listingHasPagination?: boolean;
     /** Listing whose boxes can be bought directly (default: listingCategoryPath); for shops where the main listing cannot. */
     buyableListingPath?: string;
     /** A simple (non-variant) product that can be bought. */
@@ -148,6 +150,8 @@ export interface ProjectConfig {
     };
     /** Product detail tabs in display order (default: Produktdetails, Beschreibung, Produktsicherheit). */
     productTabs?: string[];
+    /** Topics the embedded contact form (formcrafts) first offers; `[]` = only check that the form is embedded. Default: the German HD-Toner topics. */
+    contactTopics?: string[];
     /** VAT rate of the shop's country as a fraction (default 0.19, German VAT): used to check net vs. gross prices. */
     vatRate?: number;
     /** Page with the newsletter sign-up form (third party iframe on the TonerPartner shops). */

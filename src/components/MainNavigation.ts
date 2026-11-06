@@ -1,13 +1,6 @@
 import { expect, type Locator } from '@playwright/test';
 import { BasePage, escapeRegExp } from '../pages/BasePage';
 
-/**
- * Desktop main navigation + mobile off-canvas navigation.
- *
- * Shopware 6.7: root categories with children are Bootstrap dropdown toggles
- * (data-bs-toggle="dropdown"), so a click opens the flyout instead of navigating.
- * The flyout then contains a "go to category" link with the same href.
- */
 export class MainNavigation extends BasePage {
   rootLink(name: string): Locator {
     return this.$(this.s.navigation.rootLink)
@@ -22,13 +15,9 @@ export class MainNavigation extends BasePage {
   async openCategory(name: string): Promise<void> {
     const link = this.rootLink(name);
     const href = (await link.getAttribute('href')) ?? '';
-    // a nav href without trailing slash (Tintencenter "/toner") is redirected to its canonical "/toner/"
-    // (HD-Toner: the nav links to "/toner/", the shop redirects to "/Toner/": compare case-insensitively)
     const norm = (p: string) => p.replace(/\/+$/, '').toLowerCase();
     const target = norm(new URL(href, this.cfg.baseURL).pathname);
     const flyout = this.$(this.s.navigation.flyout).locator('visible=true').first();
-    // either the link navigates, or it opens a flyout (dropdown toggle) with the "show category" link;
-    // the consent layer can swallow the click, so it is repeated until one of the two happens
     await expect(async () => {
       await link.click();
       await Promise.race([
@@ -42,7 +31,6 @@ export class MainNavigation extends BasePage {
     }
   }
 
-  /** Opens the flyout of a root category (hover, fallback click) and returns it. */
   async openFlyout(name: string): Promise<Locator> {
     const link = this.rootLink(name);
     await link.hover();

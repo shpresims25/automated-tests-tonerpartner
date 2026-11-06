@@ -10,7 +10,8 @@ export class OffcanvasCart extends BasePage {
   }
 
   lineItem(name: string): Locator {
-    return this.lineItems.filter({ hasText: name }).first();
+    // long names are shortened with "..." in the cart (Cartouche Club): match by the start of the name
+    return this.lineItems.filter({ hasText: name.slice(0, 40) }).first();
   }
 
   async expectOpen(): Promise<void> {

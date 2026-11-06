@@ -28,7 +28,8 @@ test.describe("Product listing", () => {
     },
   );
 
-  test("pagination navigates to the next page", async ({
+  // not registered for shops whose product listing has a single page
+  if (shopConfig.testData.listingHasPagination !== false) test("pagination navigates to the next page", async ({
     page,
     listing,
     cfg,

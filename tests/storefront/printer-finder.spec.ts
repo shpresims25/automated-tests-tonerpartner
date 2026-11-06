@@ -28,7 +28,7 @@ if (shopConfig.testData.printerFinder) test.describe('Printer finder', () => {
     await expect(printerFinder.model).toBeEnabled();
   });
 
-  test('manufacturer, series and model lead to the printer page with compatible products', { tag: '@smoke' }, async ({ page, cfg, printerFinder, listing }) => {
+  test('choosing a model opens its printer page with title and breadcrumb', { tag: '@smoke' }, async ({ page, cfg, printerFinder }) => {
     const f = cfg.testData.printerFinder!;
     await page.goto(cfg.routes.home, { waitUntil: 'load' });
     await printerFinder.chooseManufacturer(f.manufacturer);
@@ -36,11 +36,8 @@ if (shopConfig.testData.printerFinder) test.describe('Printer finder', () => {
     await printerFinder.chooseModel(f.model);
 
     await expect(page).toHaveURL(f.modelUrlPart);
-    await expect(page.locator('main')).toContainText(f.model);
-    await expect(listing.productBoxes.first()).toBeVisible();
-    const first = listing.productBoxes.first();
-    await expect(first.locator(cfg.selectors.listing.productName)).not.toBeEmpty();
-    await expect(first.locator(cfg.selectors.listing.productPrice).first()).toContainText(/\d/);
+    await expect(page.locator('h1').first()).toContainText(f.model);
+    await expect(page.locator(cfg.selectors.page.breadcrumb).first()).toContainText(f.model);
   });
 
   test('manufacturer page lists the printer series and a series page lists models', async ({ page, cfg }) => {

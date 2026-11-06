@@ -9,7 +9,7 @@ on:
       shop:
         description: 'Shop to test'
         type: choice
-        options: [all, hdtoner, hdtonerch, hqpatronen, hqpatronench, hqpatronen24_ch, tintencenter, druckerpatronen, hdtonerat]
+        options: [all, hdtoner, hdtonerch, hqpatronen, hqpatronench, hqpatronen24_ch, tintencenter, druckerpatronen, hdtonerat, cartoucheclub]
         default: all
       grep:
         description: 'Only run tests matching (e.g. @smoke). Empty = full suite'
@@ -28,7 +28,7 @@ jobs:
       # all shops share the staging server: limit the load (3 jobs x 2 workers at a time)
       max-parallel: 3
       matrix:
-        shop: [hdtoner, hdtonerch, hqpatronen, hqpatronench, hqpatronen24_ch, tintencenter, druckerpatronen, hdtonerat]
+        shop: [hdtoner, hdtonerch, hqpatronen, hqpatronench, hqpatronen24_ch, tintencenter, druckerpatronen, hdtonerat, cartoucheclub]
         shard: [1, 2]
         include:
           - shop: hdtoner
@@ -50,6 +50,8 @@ jobs:
           # staging.hd-toner.at uses the HD-Toner staging login
           - shop: hdtonerat
             password_secret: HTTP_PASSWORD_HDTONER
+          - shop: cartoucheclub
+            password_secret: HTTP_PASSWORD_CARTOUCHECLUB
     env:
       CI: 'true'
       HOME: /root
@@ -63,6 +65,7 @@ jobs:
       BASE_URL_HQPATRONEN24_CH: ${{ vars.BASE_URL_HQPATRONEN24_CH || secrets.BASE_URL_HQPATRONEN24_CH || 'https://staging.hq-patronen24.ch' }}
       BASE_URL_TINTENCENTER: ${{ vars.BASE_URL_TINTENCENTER || secrets.BASE_URL_TINTENCENTER }}
       BASE_URL_DRUCKERPATRONEN: ${{ vars.BASE_URL_DRUCKERPATRONEN || secrets.BASE_URL_DRUCKERPATRONEN || 'https://update.druckerpatronen.de' }}
+      BASE_URL_CARTOUCHECLUB: ${{ vars.BASE_URL_CARTOUCHECLUB || secrets.BASE_URL_CARTOUCHECLUB || 'https://staging.cartoucheclub.com' }}
       BASE_URL_HDTONERAT: ${{ vars.BASE_URL_HDTONERAT || secrets.BASE_URL_HDTONERAT || 'https://staging.hd-toner.at' }}
       EXTRA_BROWSERS: firefox
       ALLOW_WRITE_TESTS: 'true'
@@ -92,6 +95,8 @@ jobs:
       TINTENCENTER_ADMIN_CLIENT_SECRET: ${{ secrets.TINTENCENTER_ADMIN_CLIENT_SECRET }}
       DRUCKERPATRONEN_ADMIN_CLIENT_ID: ${{ secrets.DRUCKERPATRONEN_ADMIN_CLIENT_ID }}
       DRUCKERPATRONEN_ADMIN_CLIENT_SECRET: ${{ secrets.DRUCKERPATRONEN_ADMIN_CLIENT_SECRET }}
+      CARTOUCHECLUB_ADMIN_CLIENT_ID: ${{ secrets.CARTOUCHECLUB_ADMIN_CLIENT_ID }}
+      CARTOUCHECLUB_ADMIN_CLIENT_SECRET: ${{ secrets.CARTOUCHECLUB_ADMIN_CLIENT_SECRET }}
     steps:
       - name: Skip shops not selected
         id: select

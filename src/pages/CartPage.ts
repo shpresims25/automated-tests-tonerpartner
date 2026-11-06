@@ -14,7 +14,8 @@ export class CartPage extends BasePage {
   }
 
   lineItem(name: string): Locator {
-    return this.lineItems.filter({ hasText: name }).first();
+    // long names are shortened with "..." in the cart (Cartouche Club): match by the start of the name
+    return this.lineItems.filter({ hasText: name.slice(0, 40) }).first();
   }
 
   async open(): Promise<void> {
@@ -27,7 +28,7 @@ export class CartPage extends BasePage {
   }
 
   private quantitySelect(name: string): Locator {
-    return this.lineItem(name).getByRole("combobox", { name: "Anzahl" });
+    return this.lineItem(name).getByRole("combobox", { name: /Anzahl|Quantité|Nombre/i });
   }
 
   async quantityOf(name: string): Promise<number> {
