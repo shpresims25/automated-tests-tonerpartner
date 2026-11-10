@@ -118,6 +118,8 @@ export interface ProjectConfig {
 
     /** How many of the HTML pages in `importantLinks` get an individual layout check (default: all). */
     layoutPageChecks?: number;
+    /** Pages whose <title> is intentionally/known empty on staging (CMS SEO meta not maintained): the layout check skips only the title assertion. */
+    pagesWithoutTitle?: string[];
     breadcrumbPagePath?: string;
     outOfRangePageReturns500?: boolean;
     notFoundPage?: "shop" | "exception";

@@ -39,8 +39,13 @@ export default defineConfig({
   expect: { timeout: 20_000 },
 
   reporter: isCI
-    ? [['list'], ['html', { open: 'never' }], ['junit', { outputFile: 'test-results/junit.xml' }]]
-    : [['list'], ['html', { open: 'on-failure' }]],
+    ? [
+        ['list'],
+        ['html', { open: 'never' }],
+        ['junit', { outputFile: 'test-results/junit.xml' }],
+        ['json', { outputFile: 'qa-report/results.json' }],
+      ]
+    : [['list'], ['html', { open: 'on-failure' }], ['json', { outputFile: 'qa-report/results.json' }]],
 
   metadata: { project: cfg.name, baseURL: cfg.baseURL },
 
@@ -48,9 +53,10 @@ export default defineConfig({
     baseURL: cfg.baseURL,
     httpCredentials: cfg.env.httpCredentials,
     locale: cfg.locale,
-    trace: 'retain-on-failure',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    // public repo: no traces/screenshots/videos in CI (they can contain customer data); kept for local runs
+    trace: isCI ? 'off' : 'retain-on-failure',
+    screenshot: isCI ? 'off' : 'only-on-failure',
+    video: isCI ? 'off' : 'retain-on-failure',
     actionTimeout: 15_000,
     navigationTimeout: 60_000,
   },

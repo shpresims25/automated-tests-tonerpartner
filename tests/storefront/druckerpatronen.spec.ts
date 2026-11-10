@@ -46,7 +46,7 @@ if (shopConfig.features.vatToggle) {
       await expect(page.getByRole('heading', { level: 1 })).toContainText('Drucker');
       const brand = page.locator('main a[href$="/Drucker/Brother/"]').first();
       await expect(brand).toBeVisible();
-      await Promise.all([page.waitForURL(/\/Drucker\/Brother\/$/, { waitUntil: 'load' }), brand.click()]);
+      await Promise.all([page.waitForURL(/\/Drucker\/Brother\/(\?.*)?$/, { waitUntil: 'load' }), brand.click()]);
       await expect(page.getByRole('heading', { level: 1 })).toContainText('Brother');
       await expect(page.locator('main a[href$="/Drucker/Brother/HL-L/"]').first()).toBeVisible();
     });
@@ -61,7 +61,7 @@ if (shopConfig.features.vatToggle) {
 
     test('searching an article number leads directly to the product page', async ({ page, cfg, product }) => {
       await page.goto(`${cfg.routes.search}?${cfg.routes.searchParam}=${cfg.testData.simpleProduct.productNumber}`, { waitUntil: 'load' });
-      await expect(page).toHaveURL(new RegExp(`/${cfg.testData.simpleProduct.productNumber}$`));
+      await expect(page).toHaveURL(new RegExp(`/${cfg.testData.simpleProduct.productNumber}(\\?.*)?$`));
       await expect(product.name).toContainText(cfg.testData.simpleProduct.name);
       expect(parsePrice(await product.price.innerText())).toBeGreaterThan(0);
     });

@@ -26,7 +26,7 @@ test.describe('Homepage', () => {
   test('logo links back to the homepage', async ({ page, cfg, header }) => {
     await page.goto(cfg.testData.listingCategoryPath);
     await Promise.all([page.waitForLoadState('domcontentloaded'), header.logo.click()]);
-    await expect(page).toHaveURL(new RegExp(`${cfg.baseURL.replace(/[.]/g, '\\.')}/?$`));
+    await expect(page).toHaveURL(new RegExp(`${cfg.baseURL.replace(/[.]/g, '\\.')}/?(\\?.*)?$`));
   });
 
   test('has no uncaught JavaScript errors', { tag: '@smoke' }, async ({ page, cfg }) => {

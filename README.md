@@ -166,13 +166,42 @@ They are deleted after each test and a teardown project deletes any leftovers by
 ## CI
 
 - **GitLab**: `.gitlab-ci.yml` — `smoke` on MRs/default branch, sharded `regression` nightly (schedule) or manually.
-- **GitHub Actions**: `.github/workflows/playwright.yml` — smoke on PRs, full sharded run on push/nightly.
+- **GitHub Actions** (the CI in use): `.github/workflows/playwright.yml` — `@smoke` on PRs and pushes to `main`, full suite on the schedule and on manual runs (one job per shop, no sharding).
 - **Bitbucket Pipelines**: `bitbucket-pipelines.yml` — smoke on PRs and `main`; `custom: full-regression` (2 parallel shards) for manual runs and nightly schedules (*Pipelines → Schedules*). Secrets go in *Repository settings → Repository variables* (Secured).
 
 Delete the CI files you don't use.
 
-Both use the official `mcr.microsoft.com/playwright` image (keep its version in sync with
-`@playwright/test`) and publish the HTML report, traces/videos of failures and a JUnit report.
+All use the official `mcr.microsoft.com/playwright` image (keep its version in sync with
+`@playwright/test`). The GitHub workflow publishes **no** artifacts (the repo is public); in CI,
+trace, screenshot and video are off. Results go only to the central QA report (below).
+
+### Schedule
+
+- Full suite for all shops: **weekdays (Mon–Fri) 16:30 UTC** (`cron: '30 16 * * 1-5'`), as one job per shop (3 at a time).
+- The central report runs at **19:00 UTC** and reads today's (UTC) uploads, so every run must finish by **18:55 UTC**. Last deploys are at 18:00 local.
+- PRs and pushes run `@smoke` only. They build a summary but are **not uploaded**. Filtered manual runs (with a `grep`) are not uploaded either.
+
+### Central QA reporting
+
+1. The Playwright JSON reporter writes `qa-report/results.json` (git-ignored).
+2. `npm run summary` (`scripts/make-summary.ts`, the shared "make-summary v1", keep it identical across QA repos) reads it and writes `qa-report/summary.json`. It needs `PROJECT`, `ENVIRONMENT` and `OWNER`; the workflow sets them (project `tonerpartner-automation`, environment = shop; for `hqpatronen24_ch` the environment slug is `hqpatronen24-ch`).
+3. `scripts/upload-profihost.sh` uploads both files with `sftp -b` to `qa-reports/<project>/<environment>/<YYYY-MM-DD>/<HHMMSS>/` (date and time from the summary's UTC timestamp). If `results.json` is missing, `summary.json` is still uploaded. A failed upload only writes a warning; it never fails the run.
+4. Self-check of the summary script: `npm run test:summary`.
+
+**Secrets** (Settings → Secrets and variables → Actions → *Secrets*; never use *Variables*, the repo is public):
+
+| Secret | Purpose |
+|---|---|
+| `PROFIHOST_HOST` | SFTP host. If empty, the upload is skipped with a notice |
+| `PROFIHOST_USER` | SFTP user |
+| `PROFIHOST_SSH_KEY` | ed25519 private key |
+| `PROFIHOST_KNOWN_HOSTS` | output of `ssh-keyscan` (`ssh-keyscan -p <port> <host>` for a non-22 port); used with `StrictHostKeyChecking=yes` |
+| `PROFIHOST_PORT` | optional, default 22 |
+| `BASE_URL_<SHOP>` | shop URL, one per shop (secrets only, no fallback in the workflow) |
+| `TEST_CUSTOMER_PASSWORD` | password of the throw-away test customers (also in `.env` locally) |
+| `HTTP_USERNAME`, `HTTP_PASSWORD_<SHOP>`, `<SHOP>_ADMIN_CLIENT_ID/SECRET` | staging login and admin API integration |
+
+**Re-run rule:** after a hotfix, re-run the suite by hand (*Actions → Playwright E2E → Run workflow*, leave `grep` empty), then re-run the central report job. The central report uses the **latest run of the day**.
 
 ---
 

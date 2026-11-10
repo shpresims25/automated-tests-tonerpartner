@@ -9,7 +9,7 @@ import { MainNavigation } from "../components/MainNavigation";
 import { CookieBanner } from "../components/CookieBanner";
 import { OffcanvasCart } from "../components/OffcanvasCart";
 import { PrinterFinder } from "../components/PrinterFinder";
-import { applyUrlParams } from "../utils/urlParams";
+import { applyUrlParams, applyUrlParamsToRequests, enforceUrlParams } from "../utils/urlParams";
 import { ListingPage } from "../pages/ListingPage";
 import { ProductPage } from "../pages/ProductPage";
 import { CartPage } from "../pages/CartPage";
@@ -129,6 +129,8 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   acceptCookies: [true, { option: true }],
   autoConsent: [true, { option: true }],
 
+  request: async ({ request, cfg }, use) => use(applyUrlParamsToRequests(request, cfg)),
+
   context: async ({ context, cfg, acceptCookies }, use) => {
     if (acceptCookies && cfg.features.cookieBanner)
       await CookieBanner.preAccept(context, cfg.baseURL);
@@ -137,6 +139,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
   page: async ({ page, cfg, autoConsent }, use) => {
     applyUrlParams(page, cfg);
+    await enforceUrlParams(page.context(), cfg);
     // staging (APP_ENV=dev) renders the Symfony web debug toolbar fixed at the bottom; on mobile it
     // covers the buy button. Not part of the shop (production has none), so it is hidden.
     await page.addInitScript(() => {
@@ -193,6 +196,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       await CookieBanner.preAccept(ctx, cfg.baseURL);
       const p = await ctx.newPage();
       applyUrlParams(p, cfg);
+      await enforceUrlParams(ctx, cfg);
       await autoAcceptConsent(p, cfg);
       const auth = new AuthPage(p, cfg);
       await auth.open();

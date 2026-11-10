@@ -53,6 +53,8 @@ const config: ProjectConfig = {
 
   testData: {
     layoutPageChecks: 7,
+    // <title> is empty on these staging pages (confirmed, not a bug)
+    pagesWithoutTitle: ["/tinte", "/unternehmen/kontakt/"],
     mainCategories: [
       "Tinte",
       "Toner",
@@ -87,7 +89,7 @@ const config: ProjectConfig = {
     customer: {
       emailDomain: "example.com",
       emailPrefix: "e2e",
-      password: "Shopware-E2E-2026!",
+      password: requireEnv("TEST_CUSTOMER_PASSWORD"),
       firstName: "E2E-Test",
       lastName: "Solution25",
       salutationIndex: 1,

@@ -1,0 +1,1 @@
+{"config":{"rootDir":"/ROOT/tests"},"suites":[{"title":"smoke/home.spec.ts","file":"smoke/home.spec.ts","specs":[{"title":"sometimes slow","file":"smoke/home.spec.ts","tests":[{"status":"flaky","results":[{"error":{"message":"timeout"}},{}]}]}]}],"errors":[],"stats":{"expected":2,"unexpected":0,"flaky":1,"skipped":0,"duration":2000}}
