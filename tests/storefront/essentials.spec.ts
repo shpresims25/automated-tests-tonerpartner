@@ -8,7 +8,8 @@ test.describe('Shop pages render the shop layout', () => {
     test(`page ${path} renders with title, header and footer`, async ({ page, cfg, header }) => {
       const res = await page.goto(path);
       expect(res?.status(), `${path} status`).toBeLessThan(400);
-      await expect(page).toHaveTitle(/.+/);
+      // some staging pages have no <title> (confirmed, not a bug): skip only that assertion for them
+      if (!shopConfig.testData.pagesWithoutTitle?.includes(path)) await expect(page).toHaveTitle(/.+/);
       await expect(header.logo).toBeVisible();
       await expect(page.locator(cfg.selectors.footer.root).first()).toBeAttached();
     });

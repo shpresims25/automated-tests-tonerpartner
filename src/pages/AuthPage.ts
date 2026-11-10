@@ -19,7 +19,7 @@ export class AuthPage extends BasePage {
     // the tab script binds late after load (slow staging): a click before that is lost, so it is repeated
     await expect(async () => {
       if (await this.registerForm.isVisible()) return;
-      await this.page.getByRole("tab", { name: /Neukunde|Nouveau client/i }).click({ timeout: 5_000 });
+      await this.page.getByRole("tab", { name: /Neukunde|Nouveau client|^Register/i }).click({ timeout: 5_000 });
       await expect(this.registerForm).toBeVisible({ timeout: 3_000 });
     }).toPass({ timeout: 30_000 });
   }
@@ -80,12 +80,12 @@ export class AuthPage extends BasePage {
     if (await createAccount.count()) {
       // checkout variant: checked = create account, unchecked = guest.
       // HD-Toner mobile hides the checkbox; its "Registrieren" / "Als Gast bestellen" tabs toggle it.
-      const guestTab = this.page.getByRole("tab", { name: /Gast|invité/i }).locator("visible=true").first();
+      const guestTab = this.page.getByRole("tab", { name: /Gast|invité|guest/i }).locator("visible=true").first();
       if (!(await createAccount.isVisible()) && (await guestTab.count())) {
         if (opts.guest) {
           // the tab script binds late after load: a click before that is lost (password fields stay required), so it is repeated
           // (a tab that was selected before the script was bound stays inert: switch to another tab and back)
-          const otherTab = this.page.getByRole("tab", { name: /Registrieren|Inscri/i }).locator("visible=true").first();
+          const otherTab = this.page.getByRole("tab", { name: /Registrieren|Inscri|^Register/i }).locator("visible=true").first();
           await expect(async () => {
             await guestTab.click({ timeout: 5_000 });
             try {

@@ -1,4 +1,5 @@
 import type { ProjectConfig } from "../src/config/types";
+import { requireEnv } from "../src/config/env";
 
 const config: ProjectConfig = {
   name: "HD-Toner",
@@ -85,7 +86,7 @@ const config: ProjectConfig = {
     customer: {
       emailDomain: "example.com",
       emailPrefix: "e2e",
-      password: "Shopware-E2E-2026!",
+      password: requireEnv("TEST_CUSTOMER_PASSWORD"),
       firstName: "E2E-Test",
       lastName: "Solution25",
       salutationIndex: 1,

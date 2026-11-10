@@ -1,6 +1,10 @@
+# Central report runs at 19:00 UTC and reads today's (UTC) uploads; each run must finish by 18:55 UTC. Last deploys are at 18:00 local.
 name: Playwright E2E
 
 on:
+  schedule:
+    # all shops, weekdays 16:30 UTC (staging shuts down after 19:00)
+    - cron: '30 16 * * 1-5'
   pull_request:
   push:
     branches: [main]
@@ -17,7 +21,7 @@ on:
 
 jobs:
   e2e:
-    name: ${{ matrix.shop }} (shard ${{ matrix.shard }}/2)
+    name: ${{ matrix.shop }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     container:
@@ -29,47 +33,57 @@ jobs:
       max-parallel: 3
       matrix:
         shop: [hdtoner, hdtonerch, hqpatronen, hqpatronench, hqpatronen24_ch, tintencenter, druckerpatronen, hdtonerat, cartoucheclub]
-        shard: [1, 2]
         include:
           - shop: hdtoner
+            environment: hdtoner
             password_secret: HTTP_PASSWORD_HDTONER
           # hd-toner.ch runs the same suite with its own profile (projects/hdtonerch.ts) and uses the HD-Toner staging login
           - shop: hdtonerch
+            environment: hdtonerch
             password_secret: HTTP_PASSWORD_HDTONER
           - shop: hqpatronen
+            environment: hqpatronen
             password_secret: HTTP_PASSWORD_HQPATRONEN
           # staging.hq-patronen.ch uses the HQ-Patronen staging login
           - shop: hqpatronench
+            environment: hqpatronench
             password_secret: HTTP_PASSWORD_HQPATRONEN
           - shop: hqpatronen24_ch
+            environment: hqpatronen24-ch
             password_secret: HTTP_PASSWORD_HQPATRONEN24_CH
           - shop: tintencenter
+            environment: tintencenter
             password_secret: HTTP_PASSWORD_TINTENCENTER
           - shop: druckerpatronen
+            environment: druckerpatronen
             password_secret: HTTP_PASSWORD_DRUCKERPATRONEN
           # staging.hd-toner.at uses the HD-Toner staging login
           - shop: hdtonerat
+            environment: hdtonerat
             password_secret: HTTP_PASSWORD_HDTONER
           - shop: cartoucheclub
+            environment: cartoucheclub
             password_secret: HTTP_PASSWORD_CARTOUCHECLUB
     env:
       CI: 'true'
       HOME: /root
       PROJECT: ${{ matrix.shop }}
-      # repository variables (Settings → Secrets and variables → Actions → Variables); a secret of the same name works too
-      BASE_URL_HDTONER: ${{ vars.BASE_URL_HDTONER || secrets.BASE_URL_HDTONER }}
-      # staging only: the loader refuses production hostnames (www.*)
-      BASE_URL_HDTONERCH: ${{ vars.BASE_URL_HDTONERCH || secrets.BASE_URL_HDTONERCH || 'https://staging.hd-toner.ch' }}
-      BASE_URL_HQPATRONEN: ${{ vars.BASE_URL_HQPATRONEN || secrets.BASE_URL_HQPATRONEN }}
-      BASE_URL_HQPATRONENCH: ${{ vars.BASE_URL_HQPATRONENCH || secrets.BASE_URL_HQPATRONENCH || 'https://staging.hq-patronen.ch' }}
-      BASE_URL_HQPATRONEN24_CH: ${{ vars.BASE_URL_HQPATRONEN24_CH || secrets.BASE_URL_HQPATRONEN24_CH || 'https://staging.hq-patronen24.ch' }}
-      BASE_URL_TINTENCENTER: ${{ vars.BASE_URL_TINTENCENTER || secrets.BASE_URL_TINTENCENTER }}
-      BASE_URL_DRUCKERPATRONEN: ${{ vars.BASE_URL_DRUCKERPATRONEN || secrets.BASE_URL_DRUCKERPATRONEN || 'https://update.druckerpatronen.de' }}
-      BASE_URL_CARTOUCHECLUB: ${{ vars.BASE_URL_CARTOUCHECLUB || secrets.BASE_URL_CARTOUCHECLUB || 'https://staging.cartoucheclub.com' }}
-      BASE_URL_HDTONERAT: ${{ vars.BASE_URL_HDTONERAT || secrets.BASE_URL_HDTONERAT || 'https://staging.hd-toner.at' }}
+      ENVIRONMENT: ${{ matrix.environment }}
+      OWNER: Shpresim Krasniqi
+      # public repo: URLs come from secrets only (variables are visible in plain text in public logs)
+      BASE_URL_HDTONER: ${{ secrets.BASE_URL_HDTONER }}
+      BASE_URL_HDTONERCH: ${{ secrets.BASE_URL_HDTONERCH }}
+      BASE_URL_HQPATRONEN: ${{ secrets.BASE_URL_HQPATRONEN }}
+      BASE_URL_HQPATRONENCH: ${{ secrets.BASE_URL_HQPATRONENCH }}
+      BASE_URL_HQPATRONEN24_CH: ${{ secrets.BASE_URL_HQPATRONEN24_CH }}
+      BASE_URL_TINTENCENTER: ${{ secrets.BASE_URL_TINTENCENTER }}
+      BASE_URL_DRUCKERPATRONEN: ${{ secrets.BASE_URL_DRUCKERPATRONEN }}
+      BASE_URL_CARTOUCHECLUB: ${{ secrets.BASE_URL_CARTOUCHECLUB }}
+      BASE_URL_HDTONERAT: ${{ secrets.BASE_URL_HDTONERAT }}
       EXTRA_BROWSERS: firefox
       ALLOW_WRITE_TESTS: 'true'
       CLEANUP_TEST_DATA: 'true'
+      TEST_CUSTOMER_PASSWORD: ${{ secrets.TEST_CUSTOMER_PASSWORD }}
       HTTP_USERNAME: ${{ secrets.HTTP_USERNAME }}
       # each job only receives the password of its own shop
       HTTP_PASSWORD: ${{ secrets[matrix.password_secret] }}
@@ -122,15 +136,28 @@ jobs:
         if: steps.select.outputs.run == 'true'
         run: |
           GREP="${{ github.event.inputs.grep }}"
-          # PRs and pushes: smoke only; nightly + manual runs: full suite (or the given grep)
+          # PRs and pushes: smoke only; scheduled + manual runs: full suite (or the given grep)
           case "${{ github.event_name }}" in pull_request|push) GREP="@smoke" ;; esac
-          npx playwright test ${GREP:+--grep "$GREP"} --shard=${{ matrix.shard }}/2
+          npx playwright test ${GREP:+--grep "$GREP"}
 
-      - uses: actions/upload-artifact@v4
+      # public repo: no upload-artifact (anyone with a GitHub account could download it); results go to Profihost only
+      - name: Build QA summary
         if: always() && steps.select.outputs.run == 'true'
-        with:
-          name: playwright-report-${{ matrix.shop }}-${{ matrix.shard }}
-          path: |
-            playwright-report/
-            test-results/
-          retention-days: 14
+        env:
+          # the job-level PROJECT is the shop profile for the suite; the report wants the project slug
+          PROJECT: tonerpartner-automation
+          RUN_LINK: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: npx tsx scripts/make-summary.ts
+
+      # only full runs are uploaded: PR/push smoke runs and filtered manual runs would replace the day's real result
+      - name: Upload to Profihost
+        if: always() && steps.select.outputs.run == 'true' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.grep == ''))
+        continue-on-error: true
+        env:
+          PROJECT: tonerpartner-automation
+          PROFIHOST_HOST: ${{ secrets.PROFIHOST_HOST }}
+          PROFIHOST_USER: ${{ secrets.PROFIHOST_USER }}
+          PROFIHOST_SSH_KEY: ${{ secrets.PROFIHOST_SSH_KEY }}
+          PROFIHOST_KNOWN_HOSTS: ${{ secrets.PROFIHOST_KNOWN_HOSTS }}
+          PROFIHOST_PORT: ${{ secrets.PROFIHOST_PORT }}
+        run: bash scripts/upload-profihost.sh

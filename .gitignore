@@ -9,3 +9,4 @@ playwright/.cache/
 .auth/
 *.log
 .DS_Store
+qa-report/

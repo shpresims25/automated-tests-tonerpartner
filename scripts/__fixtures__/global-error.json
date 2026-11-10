@@ -1,0 +1,1 @@
+{"config":{"rootDir":"/ROOT/tests"},"suites":[],"errors":[{"message":"Error: global setup failed\n  at setup.ts:1","location":{"file":"setup/auth.setup.ts"}}],"stats":{"expected":0,"unexpected":0,"flaky":0,"skipped":0,"duration":150}}
